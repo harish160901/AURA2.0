@@ -35,3 +35,5 @@ uploads/*
 .gsd/
 vr/
 Elite force /
+.vercel
+.env*

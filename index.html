@@ -2,12 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AURA 2.0 — Multimodal Aesthetic Intelligence HUD</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>AURA 2.0 — Multimodal Intelligence HUD</title>
+  
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Space Grotesk (HUD/Headings), Outfit (Body/UI), JetBrains Mono (Code/Telemetry) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  
+  <!-- LiveKit Client SDK -->
   <script src="/livekit-client.umd.min.js"></script>
   <script>
     if (typeof LivekitClient === 'undefined') {
@@ -16,323 +22,375 @@
   </script>
 
   <style>
+    /* ══════════════════════════════════════════════════════════════════════════
+       AURA 2.0 — NEO-GLASSMORPHISM & POLYMORPHIC DESIGN SYSTEM
+       ══════════════════════════════════════════════════════════════════════════ */
+    :root {
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --header-h: 68px;
+      --bottom-nav-h: 64px;
+      --cyan: #00f2fe;
+      --cyan-glow: rgba(0, 242, 254, 0.45);
+      --indigo: #6366f1;
+      --magenta: #f43f5e;
+      --purple: #a855f7;
+      --emerald: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     body {
-      background: #03040c;
-      font-family: 'Outfit', sans-serif;
+      background: #04050a;
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
       overflow: hidden;
       width: 100vw;
       height: 100vh;
       height: 100dvh;
-      color: #f8fafc;
+      color: #f1f5f9;
+      touch-action: manipulation;
     }
 
-    /* ── Mobile Safe Area ── */
-    :root {
-      --safe-top: env(safe-area-inset-top, 0px);
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
-      --header-h: 64px;
-      --bottom-nav-h: 64px;
-    }
-    h1, h2, h3, .heading-font {
+    h1, h2, h3, .hud-heading {
       font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: -0.01em;
     }
 
-    /* Ambient Neon Blobs */
-    .bg-grid {
+    .font-telemetry {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ── Ambient Background Canvas ────────────────────────────────────────── */
+    .bg-mesh-grid {
       background-image: 
-        radial-gradient(rgba(0, 242, 254, 0.09) 1px, transparent 1px),
+        radial-gradient(rgba(0, 242, 254, 0.08) 1px, transparent 1px),
         linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-      background-size: 32px 32px, 64px 64px, 64px 64px;
+      background-size: 36px 36px, 72px 72px, 72px 72px;
     }
 
-    /* ── Ambient blobs — smaller on mobile ── */
-    @media (max-width: 768px) {
-      .ab-1 { width: 280px !important; height: 280px !important; top: -60px !important; left: -60px !important; }
-      .ab-2 { width: 260px !important; height: 260px !important; bottom: -60px !important; right: -60px !important; }
-      .ab-3 { width: 200px !important; height: 200px !important; top: 35% !important; left: 30% !important; }
-    }
-
-    .aesthetic-blob {
+    .aurora-blob {
       position: fixed;
       border-radius: 50%;
       pointer-events: none;
       z-index: 0;
-      filter: blur(95px);
-      opacity: 0.5;
-      animation: blobDrift 20s ease-in-out infinite alternate;
+      filter: blur(110px);
+      opacity: 0.42;
+      animation: auroraFlow 22s ease-in-out infinite alternate;
       will-change: transform;
     }
-    .ab-1 {
-      width: 650px; height: 650px; top: -140px; left: -120px;
-      background: radial-gradient(circle, rgba(112, 0, 255, 0.45) 0%, rgba(0, 242, 254, 0.2) 65%, transparent 100%);
+    .aurora-1 {
+      width: 720px; height: 720px; top: -180px; left: -140px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.5) 0%, rgba(0, 242, 254, 0.22) 60%, transparent 100%);
     }
-    .ab-2 {
-      width: 600px; height: 600px; bottom: -120px; right: -100px;
-      background: radial-gradient(circle, rgba(243, 85, 218, 0.4) 0%, rgba(16, 185, 129, 0.2) 65%, transparent 100%);
-      animation-delay: -6s;
+    .aurora-2 {
+      width: 680px; height: 680px; bottom: -160px; right: -120px;
+      background: radial-gradient(circle, rgba(236, 72, 153, 0.38) 0%, rgba(16, 185, 129, 0.2) 65%, transparent 100%);
+      animation-delay: -8s;
     }
-    .ab-3 {
-      width: 500px; height: 500px; top: 30%; left: 35%;
-      background: radial-gradient(circle, rgba(0, 242, 254, 0.25) 0%, rgba(112, 0, 255, 0.15) 75%, transparent 100%);
-      animation-delay: -12s;
-    }
-
-    @keyframes blobDrift {
-      0%   { transform: translate3d(0, 0, 0) scale(1); }
-      50%  { transform: translate3d(70px, -50px, 0) scale(1.15); }
-      100% { transform: translate3d(-40px, 60px, 0) scale(0.92); }
+    .aurora-3 {
+      width: 520px; height: 520px; top: 32%; left: 35%;
+      background: radial-gradient(circle, rgba(0, 242, 254, 0.22) 0%, rgba(168, 85, 247, 0.18) 70%, transparent 100%);
+      animation-delay: -14s;
     }
 
-    /* Glass Panels */
-    .glass-base {
-      background: rgba(255, 255, 255, 0.03);
+    @keyframes auroraFlow {
+      0%   { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+      50%  { transform: translate3d(60px, -45px, 0) scale(1.12) rotate(4deg); }
+      100% { transform: translate3d(-35px, 50px, 0) scale(0.94) rotate(-3deg); }
+    }
+
+    /* ── Neo-Glassmorphism UI Surfaces ─────────────────────────────────────── */
+    .glass-surface {
+      background: rgba(10, 13, 26, 0.68);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
       border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.14),
+        inset 0 -1px 1px 0 rgba(0, 0, 0, 0.5),
+        0 24px 60px -12px rgba(0, 0, 0, 0.75);
+    }
+
+    .glass-surface-subtle {
+      background: rgba(255, 255, 255, 0.035);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
     }
-    .glass-panel {
-      background: rgba(8, 10, 24, 0.88);
-      backdrop-filter: blur(28px);
-      -webkit-backdrop-filter: blur(28px);
-      border: 1px solid rgba(0, 242, 254, 0.22);
-      box-shadow: 0 35px 100px rgba(0, 0, 0, 0.9), 0 0 30px rgba(112, 0, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    }
-    .glass-box {
-      background: rgba(10, 14, 32, 0.82);
-      border: 1px solid rgba(0, 242, 254, 0.35);
-      box-shadow: 0 0 70px rgba(0, 0, 0, 0.85), 0 0 35px rgba(0, 242, 254, 0.12), inset 0 0 35px rgba(0, 242, 254, 0.08);
-    }
-    .glass-input {
+
+    .glass-pill {
       background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      transition: all 0.2s ease;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-pill:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .glass-box-core {
+      background: radial-gradient(circle at 50% 40%, rgba(15, 23, 42, 0.8) 0%, rgba(6, 9, 20, 0.94) 100%);
+      backdrop-filter: blur(32px) saturate(200%);
+      -webkit-backdrop-filter: blur(32px) saturate(200%);
+      border: 1px solid rgba(0, 242, 254, 0.28);
+      box-shadow: 
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 0 40px rgba(0, 242, 254, 0.06),
+        0 40px 100px -20px rgba(0, 0, 0, 0.9),
+        0 0 45px rgba(0, 242, 254, 0.12);
+    }
+
+    .glass-input {
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .glass-input:focus {
       outline: none;
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(0, 242, 254, 0.8);
-      box-shadow: 0 0 25px rgba(0, 242, 254, 0.3);
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(0, 242, 254, 0.7);
+      box-shadow: 0 0 24px rgba(0, 242, 254, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.12);
     }
 
-    /* 3D Cyber Core & Sacred Geometry Emblem */
+    /* ── Gradient Typography ──────────────────────────────────────────────── */
+    .grad-brand {
+      background: linear-gradient(135deg, #ffffff 10%, #67e8f9 55%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .grad-accent {
+      background: linear-gradient(135deg, #00f2fe 0%, #a78bfa 50%, #f43f5e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── 3D Polymorphic Cyber Core ────────────────────────────────────────── */
     .cyber-core-container {
       position: relative;
-      width: 330px;
-      height: 330px;
+      width: 320px;
+      height: 320px;
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-    @media (max-width: 768px) {
-      .cyber-core-container {
-        width: 230px;
-        height: 230px;
-      }
-      .cyber-core-sphere {
-        width: 120px !important;
-        height: 120px !important;
-      }
-      .cyber-ring-1 { inset: -12px !important; }
-      .cyber-ring-2 { inset: -28px !important; }
-      .cyber-ring-3 { inset: -44px !important; }
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .cyber-core-sphere {
-      width: 175px;
-      height: 175px;
+      width: 170px;
+      height: 170px;
       border-radius: 50%;
-      background: radial-gradient(circle at 35% 30%, rgba(0, 242, 254, 0.95) 0%, rgba(112, 0, 255, 0.88) 40%, rgba(243, 85, 218, 0.82) 75%, rgba(16, 185, 129, 0.9) 100%);
+      background: radial-gradient(circle at 35% 28%, rgba(0, 242, 254, 0.95) 0%, rgba(99, 102, 241, 0.88) 38%, rgba(217, 70, 239, 0.82) 72%, rgba(16, 185, 129, 0.88) 100%);
       box-shadow: 
-        0 0 90px rgba(0, 242, 254, 0.88),
-        0 0 140px rgba(112, 0, 255, 0.65),
-        0 0 190px rgba(243, 85, 218, 0.45),
-        inset -14px -14px 35px rgba(0, 0, 0, 0.85),
-        inset 16px 16px 40px rgba(255, 255, 255, 0.7);
+        0 0 80px rgba(0, 242, 254, 0.8),
+        0 0 130px rgba(99, 102, 241, 0.55),
+        0 0 180px rgba(217, 70, 239, 0.35),
+        inset -12px -12px 30px rgba(0, 0, 0, 0.85),
+        inset 14px 14px 35px rgba(255, 255, 255, 0.65);
       position: relative;
       z-index: 3;
-      animation: colorShift 8s ease-in-out infinite alternate, breath 3.5s ease-in-out infinite;
+      animation: colorShift 9s ease-in-out infinite alternate, coreBreath 4s ease-in-out infinite;
       will-change: transform, filter;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      border: 2.5px solid rgba(255, 255, 255, 0.65);
+      border: 2px solid rgba(255, 255, 255, 0.7);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
     }
 
     .cyber-ring-1 {
       position: absolute;
       inset: -18px;
       border-radius: 50%;
-      border: 2px dashed rgba(0, 242, 254, 0.8);
-      animation: spinClockwise 12s linear infinite;
+      border: 1.8px dashed rgba(0, 242, 254, 0.75);
+      animation: spinClockwise 14s linear infinite;
+      transition: all 0.3s ease;
     }
     .cyber-ring-2 {
       position: absolute;
-      inset: -42px;
+      inset: -40px;
       border-radius: 50%;
-      border: 1.5px solid rgba(243, 85, 218, 0.55);
-      animation: spinCounter 18s linear infinite;
+      border: 1.5px solid rgba(217, 70, 239, 0.5);
+      animation: spinCounter 20s linear infinite;
+      transition: all 0.3s ease;
     }
     .cyber-ring-3 {
       position: absolute;
-      inset: -66px;
+      inset: -62px;
       border-radius: 50%;
       border: 1px dotted rgba(167, 139, 250, 0.45);
-      animation: spinClockwise 26s linear infinite;
+      animation: spinClockwise 28s linear infinite;
+      transition: all 0.3s ease;
     }
 
     .cyber-shockwave {
       position: absolute;
       inset: 0;
       border-radius: 50%;
-      border: 2.5px solid rgba(0, 242, 254, 0.9);
+      border: 2px solid rgba(0, 242, 254, 0.85);
       opacity: 0;
       pointer-events: none;
     }
 
+    /* ── Polymorphic Core State Modifiers ── */
+    /* State: Speaking */
     .cyber-core-sphere.speaking {
-      animation: speakPulse 0.3s ease-in-out infinite alternate;
+      animation: speakPulse 0.32s ease-in-out infinite alternate;
       box-shadow: 
-        0 0 140px rgba(0, 242, 254, 1),
-        0 0 200px rgba(243, 85, 218, 0.95),
-        0 0 260px rgba(112, 0, 255, 0.8),
-        inset 0 0 45px rgba(255,255,255,0.95);
+        0 0 130px rgba(0, 242, 254, 1),
+        0 0 190px rgba(217, 70, 239, 0.9),
+        0 0 250px rgba(99, 102, 241, 0.75),
+        inset 0 0 40px rgba(255, 255, 255, 0.95);
+      border-color: #ffffff;
     }
-    .cyber-ring-1.speaking { animation: spinClockwise 2s linear infinite; border-color: rgba(0, 242, 254, 1); }
-    .cyber-ring-2.speaking { animation: spinCounter 2.5s linear infinite; border-color: rgba(243, 85, 218, 0.95); }
-    .speaking .cyber-shockwave { animation: shockwaveExpand 0.75s cubic-bezier(0.1, 0.8, 0.3, 1) infinite; }
+    .cyber-ring-1.speaking { animation: spinClockwise 2.5s linear infinite; border-color: rgba(0, 242, 254, 1); }
+    .cyber-ring-2.speaking { animation: spinCounter 3s linear infinite; border-color: rgba(217, 70, 239, 0.95); }
+    .speaking .cyber-shockwave { animation: shockwaveExpand 0.8s cubic-bezier(0.1, 0.8, 0.3, 1) infinite; }
+
+    /* State: Listening */
+    .cyber-core-sphere.listening {
+      box-shadow: 
+        0 0 120px rgba(16, 185, 129, 0.9),
+        0 0 180px rgba(0, 242, 254, 0.7),
+        inset 0 0 35px rgba(255, 255, 255, 0.9);
+      border-color: rgba(16, 185, 129, 0.9);
+      animation: listeningPulse 1.2s ease-in-out infinite alternate;
+    }
+    .cyber-ring-1.listening { border-color: rgba(16, 185, 129, 0.9); animation: spinClockwise 6s linear infinite; }
+
+    /* State: Thinking */
+    .cyber-core-sphere.thinking {
+      animation: thinkingPulse 0.8s ease-in-out infinite alternate;
+      box-shadow: 
+        0 0 140px rgba(168, 85, 247, 0.95),
+        0 0 200px rgba(99, 102, 241, 0.8),
+        inset 0 0 40px rgba(255, 255, 255, 0.9);
+    }
+    .cyber-ring-1.thinking { animation: spinClockwise 4s linear infinite; border-color: #c084fc; }
+    .cyber-ring-2.thinking { animation: spinCounter 4s linear infinite; border-color: #818cf8; }
 
     @keyframes colorShift {
       0%   { filter: hue-rotate(0deg); }
-      100% { filter: hue-rotate(60deg); }
+      100% { filter: hue-rotate(65deg); }
+    }
+    @keyframes coreBreath {
+      0%, 100% { transform: scale(1); filter: brightness(1); }
+      50%      { transform: scale(1.05); filter: brightness(1.18); }
     }
     @keyframes speakPulse {
       0%   { transform: scale(1); filter: brightness(1.2); }
-      100% { transform: scale(1.26); filter: brightness(1.7) hue-rotate(30deg); }
+      100% { transform: scale(1.24); filter: brightness(1.6) hue-rotate(25deg); }
+    }
+    @keyframes listeningPulse {
+      0%   { transform: scale(1); filter: brightness(1.1); }
+      100% { transform: scale(1.12); filter: brightness(1.35); }
+    }
+    @keyframes thinkingPulse {
+      0%   { transform: scale(0.97); filter: hue-rotate(0deg); }
+      100% { transform: scale(1.07); filter: hue-rotate(90deg); }
     }
     @keyframes shockwaveExpand {
       0%   { transform: scale(0.9); opacity: 0.95; }
-      100% { transform: scale(2.4); opacity: 0; }
-    }
-    @keyframes breath {
-      0%, 100% { transform: scale(1); filter: brightness(1); }
-      50%       { transform: scale(1.06); filter: brightness(1.2); }
+      100% { transform: scale(2.3); opacity: 0; }
     }
     @keyframes spinClockwise { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     @keyframes spinCounter { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
 
-    /* Cyber Mic Button */
-    .mic-btn-outer {
-      background: rgba(0, 242, 254, 0.14);
-      border: 1px solid rgba(0, 242, 254, 0.4);
-      color: #00f2fe;
-      box-shadow: 0 0 22px rgba(0, 242, 254, 0.25);
-      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .mic-btn-outer:hover {
-      background: rgba(0, 242, 254, 0.28);
-      border-color: rgba(0, 242, 254, 0.7);
-      transform: scale(1.05);
-      box-shadow: 0 0 35px rgba(0, 242, 254, 0.45);
-    }
-    .mic-btn-outer.active {
-      background: rgba(239, 68, 68, 0.28);
-      border-color: rgba(239, 68, 68, 0.8);
-      color: #ef4444;
-      box-shadow: 0 0 35px rgba(239, 68, 68, 0.6);
-      animation: micActivePulse 1s ease-in-out infinite alternate;
-    }
-    @keyframes micActivePulse {
-      0%   { transform: scale(1); box-shadow: 0 0 25px rgba(239, 68, 68, 0.4); }
-      100% { transform: scale(1.06); box-shadow: 0 0 45px rgba(239, 68, 68, 0.8); }
-    }
-
+    /* ── Polymorphic Equalizer Bars ────────────────────────────────────────── */
     .eq-bar {
       width: 3.5px;
       border-radius: 2px;
       background: currentColor;
-      transition: height 0.1s ease;
+      transition: height 0.12s ease;
     }
-    .active .eq-bar-1 { animation: eqAnim 0.35s ease-in-out infinite alternate; }
-    .active .eq-bar-2 { animation: eqAnim 0.5s ease-in-out infinite alternate 0.1s; }
-    .active .eq-bar-3 { animation: eqAnim 0.4s ease-in-out infinite alternate 0.15s; }
-    .active .eq-bar-4 { animation: eqAnim 0.45s ease-in-out infinite alternate 0.2s; }
-    @keyframes eqAnim { from { height: 4px; } to { height: 20px; } }
+    .active .eq-bar-1 { animation: eqAnim 0.32s ease-in-out infinite alternate; }
+    .active .eq-bar-2 { animation: eqAnim 0.45s ease-in-out infinite alternate 0.08s; }
+    .active .eq-bar-3 { animation: eqAnim 0.38s ease-in-out infinite alternate 0.14s; }
+    .active .eq-bar-4 { animation: eqAnim 0.42s ease-in-out infinite alternate 0.2s; }
+    @keyframes eqAnim { from { height: 4px; } to { height: 18px; } }
 
-    /* Chat Messages */
+    /* ── Chat Messages & Transcript ───────────────────────────────────────── */
     .msg-aura {
-      background: rgba(0, 242, 254, 0.08);
-      border: 1px solid rgba(0, 242, 254, 0.25);
-      border-radius: 4px 20px 20px 20px;
+      background: rgba(0, 242, 254, 0.07);
+      border: 1px solid rgba(0, 242, 254, 0.22);
+      border-radius: 4px 18px 18px 18px;
+      box-shadow: 0 10px 30px -10px rgba(0, 242, 254, 0.15);
     }
     .msg-you {
-      background: linear-gradient(135deg, rgba(112, 0, 255, 0.3), rgba(243, 85, 218, 0.22));
-      border: 1px solid rgba(167, 139, 250, 0.4);
-      border-radius: 20px 4px 20px 20px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.28), rgba(217, 70, 239, 0.2));
+      border: 1px solid rgba(167, 139, 250, 0.35);
+      border-radius: 18px 4px 18px 18px;
+      box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.2);
     }
     .msg-system {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.07);
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     @keyframes popIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; transform: translateY(8px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
     }
-    .msg-anim { animation: popIn 0.25s ease-out forwards; }
+    .msg-anim { animation: popIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
     .scrollbar-hidden::-webkit-scrollbar { width: 4px; }
     .scrollbar-hidden::-webkit-scrollbar-track { background: transparent; }
-    .scrollbar-hidden::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+    .scrollbar-hidden::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
 
-    .btn-action {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.09);
-      transition: all 0.2s ease;
-    }
-    .btn-action:hover {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: rgba(255, 255, 255, 0.25);
-    }
+    /* ── Action Buttons ───────────────────────────────────────────────────── */
     .btn-primary {
-      background: linear-gradient(135deg, #7000ff, #00f2fe);
-      transition: opacity 0.2s ease, transform 0.2s ease;
+      background: linear-gradient(135deg, #6366f1 0%, #00f2fe 100%);
+      box-shadow: 0 8px 24px -6px rgba(0, 242, 254, 0.5);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .btn-primary:hover {
       opacity: 0.95;
-      transform: translateY(-1px);
+      transform: translateY(-1px) scale(1.02);
+      box-shadow: 0 12px 28px -6px rgba(0, 242, 254, 0.65);
+    }
+    .btn-primary:active {
+      transform: translateY(0) scale(0.98);
     }
 
-    .grad-text {
-      background: linear-gradient(135deg, #00f2fe 0%, #a78bfa 50%, #f355da 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .mic-btn-outer {
+      background: rgba(0, 242, 254, 0.12);
+      border: 1px solid rgba(0, 242, 254, 0.38);
+      color: #00f2fe;
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
-
-    .wake-badge-standby {
-      background: rgba(100, 116, 139, 0.18);
-      border: 1px solid rgba(100, 116, 139, 0.4);
-      color: #94a3b8;
+    .mic-btn-outer:hover {
+      background: rgba(0, 242, 254, 0.22);
+      border-color: rgba(0, 242, 254, 0.65);
+      transform: scale(1.04);
+      box-shadow: 0 0 30px rgba(0, 242, 254, 0.4);
     }
-    .wake-badge-listening {
-      background: rgba(16, 185, 129, 0.22);
-      border: 1px solid rgba(16, 185, 129, 0.7);
+    .mic-btn-outer.active {
+      background: rgba(16, 185, 129, 0.24);
+      border-color: rgba(16, 185, 129, 0.85);
       color: #10b981;
-      box-shadow: 0 0 22px rgba(16, 185, 129, 0.45);
-      animation: wakeGlow 1.2s ease-in-out infinite alternate;
+      box-shadow: 0 0 32px rgba(16, 185, 129, 0.55);
+      animation: micActiveGlow 1.2s ease-in-out infinite alternate;
     }
-    @keyframes wakeGlow {
-      0%   { box-shadow: 0 0 12px rgba(16, 185, 129, 0.3); }
-      100% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.7); }
+    @keyframes micActiveGlow {
+      0%   { transform: scale(1); box-shadow: 0 0 22px rgba(16, 185, 129, 0.35); }
+      100% { transform: scale(1.04); box-shadow: 0 0 38px rgba(16, 185, 129, 0.75); }
     }
 
-    /* ════════════════════════════════════════
-       MOBILE APP-SHELL RESPONSIVE STYLES
-       ════════════════════════════════════════ */
-
-    /* ── Mobile Bottom Nav Bar ── */
+    /* ── Mobile Shell & Navigation ────────────────────────────────────────── */
     #mobileBottomNav {
       display: none;
       position: fixed;
@@ -341,10 +399,11 @@
       right: 0;
       z-index: 50;
       padding-bottom: var(--safe-bottom);
-      background: rgba(8, 10, 24, 0.96);
-      border-top: 1px solid rgba(0, 242, 254, 0.2);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      background: rgba(8, 10, 24, 0.94);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
     }
     .mobile-nav-btn {
       flex: 1;
@@ -359,200 +418,193 @@
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.4);
+      color: rgba(255, 255, 255, 0.45);
       border: none;
       background: none;
       cursor: pointer;
-      transition: color 0.2s ease;
+      transition: all 0.2s ease;
     }
     .mobile-nav-btn.active {
       color: #00f2fe;
     }
     .mobile-nav-btn svg {
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
     }
 
-    /* ── Mobile Hamburger Menu ── */
-    #mobileMenuBtn { display: none; }
     #mobileMenu {
       display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
       z-index: 60;
-      background: rgba(3,4,12,0.97);
-      backdrop-filter: blur(24px);
+      background: rgba(4, 5, 12, 0.96);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
       flex-direction: column;
-      padding: 0;
       overflow-y: auto;
     }
     #mobileMenu.open { display: flex; }
 
-    /* ── Responsive header ── */
+    /* ── Responsive Viewport Rules ────────────────────────────────────────── */
     @media (max-width: 768px) {
-      /* Show mobile nav, hide desktop nav elements */
+      .aurora-1 { width: 320px !important; height: 320px !important; top: -80px !important; left: -80px !important; }
+      .aurora-2 { width: 300px !important; height: 300px !important; bottom: -80px !important; right: -80px !important; }
+      .aurora-3 { width: 220px !important; height: 220px !important; }
+
       #mobileBottomNav { display: flex; }
       #mobileMenuBtn { display: flex; }
       #desktopNavTabs { display: none !important; }
       #desktopRightControls { display: none !important; }
 
-      /* Compact header */
       header {
         padding: 10px 16px !important;
         padding-top: calc(10px + var(--safe-top)) !important;
       }
-      header h1 { font-size: 1.1rem !important; }
-      header .text-\[10px\] { display: none; }
 
-      /* Main area accounts for header + bottom nav */
       main {
-        padding: 12px 12px 0 !important;
+        padding: 8px 12px 0 !important;
+        padding-bottom: calc(var(--bottom-nav-h) + 12px) !important;
+      }
+
+      footer {
+        padding: 4px 12px !important;
         padding-bottom: calc(var(--bottom-nav-h) + 8px) !important;
       }
 
-      /* Footer input dock */
-      footer {
-        padding: 6px 10px !important;
-        padding-bottom: calc(var(--bottom-nav-h) + 6px) !important;
-      }
-      footer .text-\[10px\] { display: none; }
-      #msgInput { font-size: 16px !important; } /* Prevent iOS zoom */
+      #msgInput { font-size: 16px !important; }
 
-      /* Orb view fills screen nicely */
+      .cyber-core-container {
+        width: 240px;
+        height: 240px;
+      }
+      .cyber-core-sphere {
+        width: 125px !important;
+        height: 125px !important;
+      }
+      .cyber-ring-1 { inset: -14px !important; }
+      .cyber-ring-2 { inset: -30px !important; }
+      .cyber-ring-3 { inset: -46px !important; }
+
       #orbView {
         max-width: 100% !important;
         padding: 0 !important;
       }
-      #orbView .glass-box {
-        border-radius: 20px !important;
-        padding: 20px 16px !important;
+      #orbView .glass-box-core {
+        border-radius: 24px !important;
+        padding: 16px 14px !important;
       }
 
-      /* Chat view */
       #chatView {
         max-width: 100% !important;
-        inset: 12px !important;
-        inset-bottom: calc(var(--bottom-nav-h) + 60px) !important;
+        inset: 10px !important;
+        inset-bottom: calc(var(--bottom-nav-h) + 64px) !important;
       }
 
-      /* Camera PIP smaller on mobile */
       #cameraPip {
         width: 180px !important;
-        bottom: calc(var(--bottom-nav-h) + 70px) !important;
+        bottom: calc(var(--bottom-nav-h) + 68px) !important;
         right: 12px !important;
       }
       #cameraPip video { height: 110px !important; }
 
-      /* History drawer full-width on mobile */
       #historyDrawer { width: 100% !important; }
-
-      /* Input row compact */
-      #micBtn .text-\[11px\] { display: none; }
     }
 
-    /* ── Touch-friendly hit targets ── */
-    @media (max-width: 768px) {
-      button, [role="button"] {
-        min-height: 40px;
-      }
-      .wake-badge-standby, .wake-badge-listening {
-        padding: 8px 12px !important;
-      }
-    }
-
-    /* ── Tablet 769px–1024px ── */
     @media (min-width: 769px) and (max-width: 1024px) {
-      #desktopRightControls > .wake-badge-standby,
-      #desktopRightControls > .wake-badge-listening { display: none; }
       #continuousBtn .font-bold { font-size: 9px; }
       #soundText { display: none; }
     }
   </style>
 </head>
-<body class="bg-grid w-screen overflow-hidden relative flex flex-col" style="height:100vh;height:100dvh;">
+<body class="bg-mesh-grid w-screen overflow-hidden relative flex flex-col" style="height:100vh;height:100dvh;">
 
-  <!-- Ambient Glowing Blobs -->
-  <div class="aesthetic-blob ab-1"></div>
-  <div class="aesthetic-blob ab-2"></div>
-  <div class="aesthetic-blob ab-3"></div>
+  <!-- Ambient Chromatic Aurora Orbs -->
+  <div class="aurora-blob aurora-1"></div>
+  <div class="aurora-blob aurora-2"></div>
+  <div class="aurora-blob aurora-3"></div>
 
   <!-- ── TOP HUD NAVIGATION BAR ───────────────────────────────────────────── -->
-  <header class="glass-base w-full px-4 md:px-8 py-2.5 md:py-3.5 flex items-center justify-between z-20 flex-shrink-0">
-    <div class="flex items-center gap-4">
-      <div class="w-10 h-10 rounded-2xl glass-base flex items-center justify-center text-xl select-none font-bold shadow-lg"
-           style="background:rgba(0, 242, 254, 0.15); border:1px solid rgba(0, 242, 254, 0.35); color:#00f2fe;">
-        <svg class="w-6 h-6 text-cyan-300" viewBox="0 0 100 100" fill="none">
-          <circle cx="50" cy="50" r="40" stroke="#00f2fe" stroke-width="5" stroke-dasharray="10 5" />
-          <polygon points="50,15 85,50 50,85 15,50" fill="rgba(0,242,254,0.3)" stroke="#f355da" stroke-width="3" />
+  <header class="glass-surface w-full px-4 md:px-8 py-2.5 md:py-3.5 flex items-center justify-between z-20 flex-shrink-0">
+    
+    <!-- Left: AURA 2.0 Identity & Telemetry -->
+    <div class="flex items-center gap-3.5">
+      <!-- Sacred Geometry Brand Prism -->
+      <div class="w-10 h-10 rounded-2xl glass-pill flex items-center justify-center select-none shadow-lg cursor-pointer"
+           onclick="switchView('orb')"
+           style="background:rgba(0, 242, 254, 0.12); border:1px solid rgba(0, 242, 254, 0.35); color:#00f2fe;">
+        <svg class="w-6 h-6 text-cyan-300 filter drop-shadow-[0_0_8px_rgba(0,242,254,0.6)]" viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="40" stroke="#00f2fe" stroke-width="4.5" stroke-dasharray="10 5" />
+          <polygon points="50,15 85,50 50,85 15,50" fill="rgba(0,242,254,0.25)" stroke="#c084fc" stroke-width="2.5" />
           <circle cx="50" cy="50" r="6" fill="#ffffff" />
         </svg>
       </div>
+
       <div>
-        <h1 class="grad-text font-bold text-2xl tracking-wider leading-none">AURA SYSTEM</h1>
-        <div class="flex items-center gap-2 mt-1 font-mono">
-          <span class="text-[10px] text-white/40 tracking-widest uppercase">ULTRA MODE</span>
-          <span class="text-[9px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded font-semibold">400ms VAD</span>
-          <span class="text-[9px] bg-green-500/20 text-green-300 px-2 py-0.5 rounded font-semibold">MAC CONTROL</span>
+        <div class="flex items-center gap-2">
+          <h1 class="grad-brand font-bold text-xl md:text-2xl tracking-wider leading-none">AURA 2.0</h1>
+          <span class="text-[9px] font-telemetry font-bold px-1.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">v2.0</span>
+        </div>
+        <div class="flex items-center gap-2 mt-1 font-telemetry">
+          <span class="text-[9px] text-white/40 tracking-widest uppercase">MULTIMODAL INTELLIGENCE</span>
+          <span class="hidden sm:inline-block text-[8px] bg-emerald-500/15 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/30">REALTIME</span>
+          <span class="hidden sm:inline-block text-[8px] bg-purple-500/15 text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/30">MAC HUD</span>
         </div>
       </div>
     </div>
 
-    <!-- Center View Switcher Tabs — desktop only -->
-    <div id="desktopNavTabs" class="hidden md:flex items-center gap-1.5 p-1 rounded-2xl glass-base">
-      <button id="viewOrbBtn" onclick="switchView('orb')" class="px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
-        ✦ Aesthetic Core
+    <!-- Center: Segmented Polymorphic View Switcher (Desktop) -->
+    <div id="desktopNavTabs" class="hidden md:flex items-center gap-1 p-1 rounded-2xl glass-surface-subtle">
+      <button id="viewOrbBtn" onclick="switchView('orb')" class="px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm flex items-center gap-1.5 cursor-pointer">
+        <span>✦</span> Core View
       </button>
-      <button id="viewChatBtn" onclick="switchView('chat')" class="px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 text-white/60 hover:text-white">
-        💬 Live Transcript
+      <button id="viewChatBtn" onclick="switchView('chat')" class="px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 text-white/60 hover:text-white flex items-center gap-1.5 cursor-pointer">
+        <span>💬</span> Live Stream
       </button>
-      <button onclick="toggleHistoryDrawer()" class="px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 text-white/60 hover:text-white flex items-center gap-1">
-        📜 History (<span id="historyCount">0</span>)
+      <button onclick="toggleHistoryDrawer()" class="px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 text-white/60 hover:text-white flex items-center gap-1.5 cursor-pointer">
+        <span>📜</span> History (<span id="historyCount">0</span>)
       </button>
     </div>
 
-    <!-- Right Controls: Wake Word, Always Listening, Boosted Audio, Status — desktop only -->
-    <div id="desktopRightControls" class="hidden md:flex items-center gap-3">
-      <!-- Wake Word Badge -->
-      <div id="wakeBadge" class="wake-badge-standby flex items-center gap-2 px-3.5 py-1.5 rounded-full cursor-pointer transition-all" onclick="toggleWakeWordMode()" title='Say "Hey Aura" to activate'>
+    <!-- Right: Unified HUD Control Cluster (Desktop) -->
+    <div id="desktopRightControls" class="hidden md:flex items-center gap-2.5">
+      <!-- Status Pill -->
+      <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-pill" id="statusContainer">
+        <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-gray-500 shadow-sm"></div>
+        <span id="statusText" class="text-[11px] text-white/70 tracking-wider uppercase font-telemetry font-semibold">CONNECTING</span>
+      </div>
+
+      <!-- Wake Word Toggle ("Hey Aura") -->
+      <div id="wakeBadge" class="flex items-center gap-2 px-3 py-1.5 rounded-full glass-pill cursor-pointer" onclick="toggleWakeWordMode()" title='Say "Hey Aura" to activate'>
         <div id="wakeDot" class="w-2 h-2 rounded-full bg-slate-400"></div>
-        <span id="wakeText" class="text-[11px] font-mono font-bold tracking-wider uppercase">SAY: HEY AURA</span>
+        <span id="wakeText" class="text-[11px] font-telemetry font-bold tracking-wider uppercase text-slate-300">WAKE: HEY AURA</span>
       </div>
 
       <!-- Always-On Listening Toggle -->
-      <button id="continuousBtn" onclick="toggleContinuousMode()" class="btn-action px-3 py-1.5 rounded-2xl text-[11px] font-mono text-purple-300 border border-purple-500/40 flex items-center gap-1.5 shadow-lg bg-purple-500/10" title="Toggle Always-On Listening">
+      <button id="continuousBtn" onclick="toggleContinuousMode()" class="glass-pill px-3 py-1.5 rounded-full text-[11px] font-telemetry text-purple-300 border border-purple-500/40 flex items-center gap-1.5 shadow-sm" title="Toggle Continuous Always-On Listening">
         <span id="continuousDot" class="w-2 h-2 rounded-full bg-slate-400"></span>
-        <span id="continuousText" class="font-bold">ALWAYS LISTENING: OFF</span>
+        <span id="continuousText" class="font-bold">ALWAYS-ON: OFF</span>
       </button>
 
-      <!-- 3.5x Sound Boost & Audio Unlock -->
-      <button id="soundUnlockBtn" onclick="forceUnlockSound()" class="btn-action px-3 py-1.5 rounded-2xl text-xs font-mono text-cyan-300 border border-cyan-500/40 flex items-center gap-1.5 shadow-lg bg-cyan-500/10">
+      <!-- 3.5x Sound Boost -->
+      <button id="soundUnlockBtn" onclick="forceUnlockSound()" class="glass-pill px-3 py-1.5 rounded-full text-xs font-telemetry text-cyan-300 border border-cyan-500/40 flex items-center gap-1.5 shadow-sm" title="Unlock Boosted Audio Gain">
         <span id="soundIcon">📢</span>
-        <span id="soundText" class="font-bold">BOOSTED 3.5x SOUND</span>
+        <span id="soundText" class="font-bold">3.5x SOUND</span>
       </button>
 
-      <!-- Status Indicator -->
-      <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-base">
-        <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-gray-500"></div>
-        <span id="statusText" class="text-[11px] text-white/60 tracking-wider uppercase font-mono font-semibold">connecting</span>
-      </div>
-
-      <!-- Profile Badge -->
-      <div id="userBadge" class="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl glass-base cursor-pointer" onclick="openAuthModal()">
-        <span class="text-sm">👤</span>
-        <div class="text-left">
-          <p id="userNameDisplay" class="text-xs font-bold text-cyan-300 leading-tight">User</p>
-          <p id="userContactDisplay" class="text-[9px] text-white/40 font-mono">user@gmail.com</p>
-        </div>
+      <!-- User Profile Avatar -->
+      <div id="userBadge" class="flex items-center gap-2 px-3 py-1.5 rounded-full glass-pill cursor-pointer" onclick="openAuthModal()" title="Edit Identity">
+        <span class="text-xs">👤</span>
+        <p id="userNameDisplay" class="text-xs font-bold text-cyan-300 leading-tight">User</p>
       </div>
     </div>
 
-    <!-- Mobile-only: status dot + hamburger -->
-    <div id="mobileMenuBtn" class="flex md:hidden items-center gap-3">
-      <div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full glass-base">
+    <!-- Mobile Header Controls -->
+    <div id="mobileMenuBtn" class="flex md:hidden items-center gap-2.5">
+      <div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full glass-pill">
         <div id="mobileStatusDot" class="w-2 h-2 rounded-full bg-gray-500"></div>
-        <span id="mobileStatusText" class="text-[10px] text-white/60 font-mono uppercase font-bold">connecting</span>
+        <span id="mobileStatusText" class="text-[10px] text-white/70 font-telemetry uppercase font-bold">CONNECTING</span>
       </div>
-      <button onclick="toggleMobileMenu()" class="w-10 h-10 rounded-2xl glass-base flex items-center justify-center text-white/70 transition-all" aria-label="Menu">
+      <button onclick="toggleMobileMenu()" class="w-10 h-10 rounded-2xl glass-pill flex items-center justify-center text-white/80" aria-label="Open Navigation Menu">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
@@ -560,53 +612,61 @@
     </div>
   </header>
 
-  <!-- ── MOBILE SLIDE-DOWN MENU ──────────────────────────────────────────── -->
+  <!-- ── MOBILE SLIDE-DOWN DRAWER MENU ────────────────────────────────────── -->
   <div id="mobileMenu">
     <div class="flex items-center justify-between px-5 py-4 border-b border-white/10" style="padding-top: calc(1rem + var(--safe-top));">
-      <span class="grad-text font-bold text-lg">AURA MENU</span>
-      <button onclick="toggleMobileMenu()" class="w-10 h-10 rounded-2xl glass-base flex items-center justify-center text-white/60 hover:text-white">
+      <div class="flex items-center gap-2">
+        <span class="grad-brand font-bold text-lg">AURA 2.0</span>
+        <span class="text-[9px] font-telemetry px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">MENU</span>
+      </div>
+      <button onclick="toggleMobileMenu()" class="w-10 h-10 rounded-2xl glass-pill flex items-center justify-center text-white/60 hover:text-white">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
     </div>
+    
     <div class="flex flex-col gap-3 p-5">
       <!-- Wake Word -->
-      <div id="mobileWakeBadge" class="wake-badge-standby flex items-center gap-3 px-4 py-3 rounded-2xl cursor-pointer transition-all" onclick="toggleWakeWordMode(); toggleMobileMenu();">
+      <div id="mobileWakeBadge" class="glass-pill flex items-center gap-3 px-4 py-3 rounded-2xl cursor-pointer" onclick="toggleWakeWordMode();">
         <div id="mobileWakeDot" class="w-3 h-3 rounded-full bg-slate-400 flex-shrink-0"></div>
         <div>
-          <div class="text-xs font-mono font-bold tracking-wider uppercase" id="mobileWakeText">SAY: HEY AURA</div>
-          <div class="text-[10px] text-white/40 mt-0.5">Tap to toggle wake word</div>
+          <div class="text-xs font-telemetry font-bold tracking-wider uppercase text-white" id="mobileWakeText">SAY: HEY AURA</div>
+          <div class="text-[10px] text-white/40 mt-0.5">Hands-free voice detection</div>
         </div>
       </div>
-      <!-- Always Listening -->
-      <button id="mobileContinuousBtn" onclick="toggleContinuousMode()" class="btn-action px-4 py-3 rounded-2xl text-sm font-mono text-purple-300 border border-purple-500/40 flex items-center gap-3 bg-purple-500/10">
+
+      <!-- Always-On Listening -->
+      <button id="mobileContinuousBtn" onclick="toggleContinuousMode()" class="glass-pill px-4 py-3 rounded-2xl text-sm font-telemetry text-purple-300 border border-purple-500/40 flex items-center gap-3">
         <span id="mobileContinuousDot" class="w-3 h-3 rounded-full bg-slate-400 flex-shrink-0"></span>
         <div class="text-left">
-          <div id="mobileContinuousText" class="font-bold text-xs uppercase tracking-wider">ALWAYS LISTENING: OFF</div>
-          <div class="text-[10px] text-white/40 mt-0.5 normal-case font-normal">Keep mic open continuously</div>
+          <div id="mobileContinuousText" class="font-bold text-xs uppercase tracking-wider text-purple-200">ALWAYS-ON: OFF</div>
+          <div class="text-[10px] text-white/40 mt-0.5 normal-case font-normal">Keep microphone open continuously</div>
         </div>
       </button>
-      <!-- Sound Boost -->
-      <button onclick="forceUnlockSound(); toggleMobileMenu();" class="btn-action px-4 py-3 rounded-2xl text-sm font-mono text-cyan-300 border border-cyan-500/40 flex items-center gap-3 bg-cyan-500/10">
+
+      <!-- 3.5x Sound Boost -->
+      <button onclick="forceUnlockSound(); toggleMobileMenu();" class="glass-pill px-4 py-3 rounded-2xl text-sm font-telemetry text-cyan-300 border border-cyan-500/40 flex items-center gap-3">
         <span class="text-xl">📢</span>
         <div class="text-left">
-          <div class="font-bold text-xs uppercase tracking-wider">3.5× SOUND BOOST</div>
-          <div class="text-[10px] text-white/40 mt-0.5 normal-case font-normal">Unlock boosted audio output</div>
+          <div class="font-bold text-xs uppercase tracking-wider text-cyan-200">3.5× SOUND BOOST</div>
+          <div class="text-[10px] text-white/40 mt-0.5 normal-case font-normal">Web Audio gain enhancement</div>
         </div>
       </button>
+
       <!-- Profile -->
-      <button onclick="openAuthModal(); toggleMobileMenu();" class="btn-action px-4 py-3 rounded-2xl text-sm font-mono text-white/80 border border-white/15 flex items-center gap-3">
+      <button onclick="openAuthModal(); toggleMobileMenu();" class="glass-pill px-4 py-3 rounded-2xl text-sm font-telemetry text-white/80 border border-white/15 flex items-center gap-3">
         <span class="text-xl">👤</span>
         <div class="text-left">
-          <div class="font-bold text-xs uppercase tracking-wider" id="mobileUserName">USER PROFILE</div>
+          <div class="font-bold text-xs uppercase tracking-wider text-white" id="mobileUserName">USER PROFILE</div>
           <div class="text-[10px] text-white/40 mt-0.5 normal-case font-normal" id="mobileUserEmail">user@gmail.com</div>
         </div>
       </button>
+
       <!-- History -->
-      <button onclick="toggleHistoryDrawer(); toggleMobileMenu();" class="btn-action px-4 py-3 rounded-2xl text-sm font-mono text-purple-300 border border-purple-500/30 flex items-center gap-3">
+      <button onclick="toggleHistoryDrawer(); toggleMobileMenu();" class="glass-pill px-4 py-3 rounded-2xl text-sm font-telemetry text-purple-300 border border-purple-500/30 flex items-center gap-3">
         <span class="text-xl">📜</span>
         <div class="text-left">
-          <div class="font-bold text-xs uppercase tracking-wider">CONVERSATION HISTORY</div>
-          <div class="text-[10px] text-white/40 mt-0.5 normal-case font-normal"><span id="mobileHistoryCount">0</span> saved messages</div>
+          <div class="font-bold text-xs uppercase tracking-wider text-purple-200">CONVERSATION LOGS</div>
+          <div class="text-[10px] text-white/40 mt-0.5 normal-case font-normal"><span id="mobileHistoryCount">0</span> archived messages</div>
         </div>
       </button>
     </div>
@@ -615,104 +675,110 @@
   <!-- ── MAIN DASHBOARD WORKSPACE ─────────────────────────────────────────── -->
   <main class="flex-1 relative flex items-center justify-center p-3 md:p-6 min-h-0 z-10">
     
-    <!-- VIEW 1: 3D AESTHETIC CYBER CORE -->
+    <!-- VIEW 1: 3D POLYMORPHIC AESTHETIC CYBER CORE -->
     <div id="orbView" class="w-full h-full flex flex-col items-center justify-center transition-all duration-300">
-      <div class="glass-box w-full max-w-2xl rounded-3xl p-5 md:p-8 flex flex-col items-center justify-center relative overflow-hidden" style="min-height:0;flex:1;max-height:100%;">
+      <div class="glass-box-core w-full max-w-2xl rounded-3xl p-5 md:p-8 flex flex-col items-center justify-center relative overflow-hidden" style="min-height:0;flex:1;max-height:100%;">
         
+        <!-- Status Top Micro-Badge -->
         <div class="absolute top-4 left-6 flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-          <span class="text-[10px] text-cyan-300 font-mono tracking-widest uppercase">CORE ACTIVE — GEMINI REALTIME READY</span>
+          <span class="text-[10px] text-cyan-300 font-telemetry tracking-widest uppercase">AURA 2.0 ACTIVE — GEMINI REALTIME READY</span>
         </div>
 
-        <!-- 3D Cyber Core -->
+        <!-- 3D Polymorphic Cyber Core -->
         <div id="orbContainer" class="cyber-core-container my-3 md:my-6">
           <div class="cyber-shockwave"></div>
           <div id="glowRing3" class="cyber-ring-3"></div>
           <div id="glowRing2" class="cyber-ring-2"></div>
           <div id="glowRing1" class="cyber-ring-1"></div>
           
-          <div id="visualOrb" class="cyber-core-sphere cursor-pointer shadow-2xl" onclick="forceUnlockSound()">
-            <svg class="w-20 h-20 filter drop-shadow-[0_0_18px_rgba(0,242,254,1)] animate-[spin_22s_linear_infinite]" viewBox="0 0 100 100" fill="none">
-              <circle cx="50" cy="50" r="44" stroke="url(#aesGrad1)" stroke-width="2.5" stroke-dasharray="12 6" />
-              <circle cx="50" cy="50" r="36" stroke="url(#aesGrad2)" stroke-width="1.8" stroke-dasharray="4 4" />
-              <polygon points="50,12 62,38 88,50 62,62 50,88 38,62 12,50 38,38" fill="url(#aesGrad3)" opacity="0.4" />
-              <polygon points="50,12 62,38 88,50 62,62 50,88 38,62 12,50 38,38" stroke="url(#aesGrad1)" stroke-width="2" fill="none" />
-              <polygon points="50,22 78,50 50,78 22,50" stroke="url(#aesGrad2)" stroke-width="2" fill="none" />
-              <path d="M50,30 L54,46 L70,50 L54,54 L50,70 L46,54 L30,50 L46,46 Z" fill="url(#aesGrad4)" />
-              <circle cx="50" cy="50" r="5" fill="#ffffff" />
+          <div id="visualOrb" class="cyber-core-sphere shadow-2xl" onclick="forceUnlockSound()" title="Tap to interact or boost audio">
+            <!-- Center Sacred Geometry Emblem -->
+            <svg class="w-16 h-16 md:w-20 md:h-20 filter drop-shadow-[0_0_18px_rgba(0,242,254,1)] animate-[spin_24s_linear_infinite]" viewBox="0 0 100 100" fill="none">
+              <circle cx="50" cy="50" r="44" stroke="url(#coreGrad1)" stroke-width="2.2" stroke-dasharray="12 6" />
+              <circle cx="50" cy="50" r="36" stroke="url(#coreGrad2)" stroke-width="1.8" stroke-dasharray="4 4" />
+              <polygon points="50,12 62,38 88,50 62,62 50,88 38,62 12,50 38,38" fill="url(#coreGrad3)" opacity="0.4" />
+              <polygon points="50,12 62,38 88,50 62,62 50,88 38,62 12,50 38,38" stroke="url(#coreGrad1)" stroke-width="2" fill="none" />
+              <polygon points="50,22 78,50 50,78 22,50" stroke="url(#coreGrad2)" stroke-width="1.8" fill="none" />
+              <path d="M50,30 L54,46 L70,50 L54,54 L50,70 L46,54 L30,50 L46,46 Z" fill="url(#coreGrad4)" />
+              <circle cx="50" cy="50" r="4" fill="#ffffff" />
               
               <defs>
-                <linearGradient id="aesGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <linearGradient id="coreGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="#00f2fe" />
                   <stop offset="33%" stop-color="#a78bfa" />
                   <stop offset="66%" stop-color="#ec4899" />
                   <stop offset="100%" stop-color="#10b981" />
                 </linearGradient>
-                <linearGradient id="aesGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stop-color="#f355da" />
+                <linearGradient id="coreGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#f43f5e" />
                   <stop offset="100%" stop-color="#00f2fe" />
                 </linearGradient>
-                <linearGradient id="aesGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+                <linearGradient id="coreGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="rgba(0,242,254,0.4)" />
-                  <stop offset="100%" stop-color="rgba(243,85,218,0.4)" />
+                  <stop offset="100%" stop-color="rgba(217,70,239,0.4)" />
                 </linearGradient>
-                <linearGradient id="aesGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+                <linearGradient id="coreGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="#ffffff" />
                   <stop offset="100%" stop-color="#00f2fe" />
                 </linearGradient>
               </defs>
             </svg>
-            <div class="grad-text font-bold text-[10px] mt-1.5 font-mono uppercase tracking-[0.45em]">✦ AURA ✦</div>
+            
+            <div class="grad-brand font-bold text-[10px] mt-1 font-telemetry uppercase tracking-[0.4em]">✦ AURA 2.0 ✦</div>
           </div>
         </div>
 
-        <!-- Subtitle Overlay -->
-        <div class="w-full text-center px-6 py-3 rounded-2xl glass-base max-h-20 overflow-y-auto scrollbar-hidden">
-          <p id="liveSubtitle" class="text-sm text-white/60 italic font-light">Say "Hey Aura", speak your mind, or attach camera & files…</p>
+        <!-- Polymorphic Live Subtitle Bar -->
+        <div class="w-full text-center px-5 py-3 rounded-2xl glass-surface-subtle max-h-20 overflow-y-auto scrollbar-hidden">
+          <p id="liveSubtitle" class="text-sm text-white/70 italic font-light">Say "Hey Aura", speak your mind, or attach camera & files…</p>
         </div>
 
       </div>
     </div>
 
-    <!-- VIEW 2: FULL TRANSCRIPT CHAT VIEW -->
+    <!-- VIEW 2: REALTIME TRANSCRIPT CHAT VIEW -->
     <div id="chatView" class="w-full h-full flex flex-col opacity-0 pointer-events-none transition-all duration-300 absolute inset-3 md:inset-6 m-auto">
-      <div class="glass-panel w-full h-full rounded-3xl p-6 flex flex-col overflow-hidden">
-        <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
-          <h3 class="text-sm font-bold text-cyan-300 font-mono tracking-wider">💬 REALTIME TRANSCRIPT STREAM</h3>
-          <span class="text-[10px] text-white/40 font-mono">AUTOSAVED</span>
+      <div class="glass-surface w-full h-full rounded-3xl p-5 md:p-6 flex flex-col overflow-hidden">
+        <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-cyan-400">💬</span>
+            <h3 class="text-sm font-bold text-cyan-300 font-telemetry tracking-wider">AURA 2.0 REALTIME STREAM</h3>
+          </div>
+          <span class="text-[10px] text-white/40 font-telemetry">AUTOSAVED</span>
         </div>
-        <div id="chatArea" class="flex-1 overflow-y-auto scrollbar-hidden space-y-4 pr-2">
+        <div id="chatArea" class="flex-1 overflow-y-auto scrollbar-hidden space-y-4 pr-1">
           <!-- Dynamic Chat Messages -->
         </div>
       </div>
     </div>
 
     <!-- ── PICTURE-IN-PICTURE CAMERA PREVIEW ──────────────────────────────── -->
-    <div id="cameraPip" class="hidden fixed z-40 glass-panel rounded-3xl p-3 shadow-2xl border border-cyan-400/50 transition-all duration-300" style="bottom:calc(64px + 16px);right:12px;width:190px;">
+    <div id="cameraPip" class="hidden fixed z-40 glass-surface rounded-3xl p-3 shadow-2xl border border-cyan-400/50 transition-all duration-300" style="bottom:calc(64px + 16px);right:14px;width:190px;">
       <div class="flex items-center justify-between pb-2 border-b border-white/10 mb-2">
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-          <span class="text-[11px] font-mono font-bold text-emerald-300 tracking-wider">LIVE CAMERA VISION</span>
+          <span class="text-[10px] font-telemetry font-bold text-emerald-300 tracking-wider">LIVE VISION</span>
         </div>
         <button onclick="toggleCamera()" title="Close Camera" class="text-white/50 hover:text-white text-xs px-2 py-0.5 rounded-lg hover:bg-white/10 cursor-pointer">✕</button>
       </div>
-      <div class="relative w-full h-44 rounded-2xl overflow-hidden bg-black/60 border border-white/10 flex items-center justify-center">
+      <div class="relative w-full h-40 rounded-2xl overflow-hidden bg-black/70 border border-white/10 flex items-center justify-center">
         <video id="cameraVideo" autoplay playsinline muted class="w-full h-full object-cover"></video>
       </div>
     </div>
 
     <!-- ── SLIDE-OUT HISTORY DRAWER ──────────────────────────────────────── -->
-    <aside id="historyDrawer" class="absolute top-0 left-0 h-full w-full md:w-96 glass-panel border-r border-white/10 p-5 flex flex-col z-30 transition-all duration-300 transform -translate-x-full">
+    <aside id="historyDrawer" class="absolute top-0 left-0 h-full w-full md:w-96 glass-surface border-r border-white/10 p-5 flex flex-col z-30 transition-all duration-300 transform -translate-x-full">
       <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
         <div class="flex items-center gap-2">
           <span class="text-lg">📜</span>
-          <h3 class="font-bold text-sm text-purple-300 tracking-wider">CONVERSATION HISTORY</h3>
+          <h3 class="font-bold text-sm text-purple-300 tracking-wider font-telemetry">AURA 2.0 HISTORY</h3>
         </div>
         <button onclick="toggleHistoryDrawer()" class="text-white/40 hover:text-white text-lg cursor-pointer">✕</button>
       </div>
 
-      <div class="flex items-center justify-between mb-3 text-xs text-white/40 font-mono">
-        <span>UNIFIED THREAD</span>
+      <div class="flex items-center justify-between mb-3 text-xs text-white/40 font-telemetry">
+        <span>PERSISTENT THREAD</span>
         <button onclick="clearHistory()" class="text-red-400 hover:underline cursor-pointer">Clear All</button>
       </div>
 
@@ -723,15 +789,15 @@
 
   </main>
 
-  <!-- ── GOOGLE GEMINI-STYLE FLOATING BOTTOM DOCK ────────────────────────── -->
-  <footer class="w-full px-4 md:px-8 pt-2 z-20 flex flex-col items-center justify-center flex-shrink-0" style="padding-bottom:calc(64px + 8px);">
+  <!-- ── FLOATING INPUT ACTION DOCK ──────────────────────────────────────── -->
+  <footer class="w-full px-3 md:px-8 pt-2 z-20 flex flex-col items-center justify-center flex-shrink-0" style="padding-bottom:calc(64px + 8px);">
     <div class="w-full max-w-3xl flex flex-col gap-2">
       
       <!-- Attachment Tray -->
-      <div id="attachmentTray" class="hidden flex flex-wrap items-center gap-2 px-4 py-2 rounded-2xl glass-base border border-cyan-500/30 transition-all"></div>
+      <div id="attachmentTray" class="hidden flex flex-wrap items-center gap-2 px-4 py-2 rounded-2xl glass-surface-subtle border border-cyan-500/30 transition-all"></div>
 
       <!-- Main Input Dock -->
-      <div class="glass-panel w-full rounded-3xl p-2 px-3 flex items-center gap-2 shadow-2xl border border-cyan-500/30">
+      <div class="glass-surface w-full rounded-3xl p-1.5 md:p-2 px-3 flex items-center gap-2 shadow-2xl border border-cyan-500/30">
         
         <!-- File Upload Button -->
         <input type="file" id="fileInput" multiple accept="image/*,.pdf,.txt,.doc,.docx,.json,.py,.js" class="hidden" onchange="handleFileSelect(event)" />
@@ -742,8 +808,8 @@
           </svg>
         </button>
 
-        <!-- Camera Button -->
-        <button id="cameraBtn" onclick="toggleCamera()" title="Toggle camera vision"
+        <!-- Camera Vision Button -->
+        <button id="cameraBtn" onclick="toggleCamera()" title="Toggle live camera vision"
                 class="w-10 h-10 rounded-2xl flex items-center justify-center text-white/70 hover:text-cyan-300 hover:bg-white/10 transition-all duration-200 cursor-pointer relative">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
@@ -753,13 +819,13 @@
         </button>
 
         <!-- Text Input -->
-        <input id="msgInput" type="text" placeholder="Ask Aura anything..."
+        <input id="msgInput" type="text" placeholder="Message AURA 2.0 or hold Space..."
                class="bg-transparent flex-1 px-3 py-2 text-white text-base md:text-sm placeholder-white/40 focus:outline-none"
                style="font-size:16px;"
                onkeydown="if(event.key==='Enter')sendText()" />
 
         <!-- Microphone Button -->
-        <button id="micBtn" onclick="toggleMic()" title="Click or Press Spacebar/M to Toggle Mic"
+        <button id="micBtn" onclick="toggleMic()" title="Click or Press Space/M to Toggle Mic"
                 class="mic-btn-outer px-3.5 h-10 rounded-2xl flex items-center justify-center gap-2 cursor-pointer transition-all">
           <div class="flex items-center gap-1">
             <div class="eq-bar eq-bar-1 h-3"></div>
@@ -767,21 +833,22 @@
             <div class="eq-bar eq-bar-3 h-2"></div>
             <div class="eq-bar eq-bar-4 h-3"></div>
           </div>
-          <span id="micLabel" class="text-[11px] font-mono font-bold">MIC</span>
+          <span id="micLabel" class="text-[11px] font-telemetry font-bold">MIC</span>
         </button>
 
-        <!-- Send Button -->
+        <!-- Send Arrow Button -->
         <button id="sendBtn" onclick="sendText()" title="Send message"
-                class="btn-primary w-10 h-10 rounded-2xl flex items-center justify-center text-white text-base font-bold transition-transform hover:scale-105 cursor-pointer">
+                class="btn-primary w-10 h-10 rounded-2xl flex items-center justify-center text-white text-base font-bold cursor-pointer">
           ↑
         </button>
 
       </div>
 
-      <div class="hidden md:flex items-center justify-between text-[10px] text-white/30 font-mono px-3">
+      <!-- Micro Hints (Desktop) -->
+      <div class="hidden md:flex items-center justify-between text-[10px] text-white/30 font-telemetry px-3">
         <span>📎 ATTACH FILES & IMAGES</span>
         <span>📷 LIVE CAMERA VISION</span>
-        <span>🎙 SPACE / M TO TOGGLE MIC</span>
+        <span>🎙 SPACE / M TO TALK</span>
       </div>
 
     </div>
@@ -789,41 +856,41 @@
 
   <!-- ── AUTHENTICATION MODAL ───────────────────────────────────────────── -->
   <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
-    <div class="glass-panel w-full max-w-md rounded-3xl p-8 flex flex-col relative border border-cyan-500/30 shadow-2xl">
-      <button onclick="closeAuthModal()" class="absolute top-5 right-5 text-white/40 hover:text-white text-lg">✕</button>
+    <div class="glass-surface w-full max-w-md rounded-3xl p-7 md:p-8 flex flex-col relative border border-cyan-500/30 shadow-2xl m-4">
+      <button onclick="closeAuthModal()" class="absolute top-5 right-5 text-white/40 hover:text-white text-lg cursor-pointer">✕</button>
       <div class="text-center mb-6">
-        <div class="w-12 h-12 rounded-2xl glass-base mx-auto mb-3 flex items-center justify-center text-2xl text-cyan-300 border border-cyan-500/40">✦</div>
-        <h2 class="grad-text font-bold text-2xl">User Profile & Account</h2>
-        <p class="text-xs text-white/40 mt-1">Configure your identity for Aura</p>
+        <div class="w-12 h-12 rounded-2xl glass-surface-subtle mx-auto mb-3 flex items-center justify-center text-2xl text-cyan-300 border border-cyan-500/40">✦</div>
+        <h2 class="grad-brand font-bold text-2xl">AURA 2.0 Identity Profile</h2>
+        <p class="text-xs text-white/40 mt-1">Configure your personalized profile</p>
       </div>
 
       <form onsubmit="handleAuthSubmit(event)" class="space-y-4">
         <div>
-          <label class="block text-xs font-mono text-white/60 mb-1">Your Name</label>
+          <label class="block text-xs font-telemetry text-white/60 mb-1">Your Name</label>
           <input id="authNameInput" type="text" required placeholder="User"
                  class="glass-input w-full rounded-xl px-4 py-2.5 text-white text-sm" value="User" />
         </div>
         <div>
-          <label class="block text-xs font-mono text-white/60 mb-1">Gmail Address</label>
+          <label class="block text-xs font-telemetry text-white/60 mb-1">Email Address</label>
           <input id="authEmailInput" type="email" required placeholder="user@gmail.com"
                  class="glass-input w-full rounded-xl px-4 py-2.5 text-white text-sm" value="user@gmail.com" />
         </div>
-        <button type="submit" class="btn-primary w-full py-3 rounded-xl text-white font-bold text-sm shadow-lg mt-2">
+        <button type="submit" class="btn-primary w-full py-3 rounded-xl text-white font-bold text-sm shadow-lg mt-2 cursor-pointer">
           Save Profile
         </button>
       </form>
     </div>
   </div>
 
-  <div id="audioContainer" class="fixed bottom-4 right-4 z-40 hidden flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-cyan-500/30 text-xs font-mono text-cyan-300">
+  <div id="audioContainer" class="fixed bottom-4 right-4 z-40 hidden flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-cyan-500/30 text-xs font-telemetry text-cyan-300">
     <span class="animate-pulse">📢</span>
     <span id="audioTrackStatus">+350% GAIN BOOSTED</span>
   </div>
 
-  <!-- ── MOBILE BOTTOM NAV ─────────────────────────────────────────────────── -->
+  <!-- ── MOBILE BOTTOM NAVIGATION BAR ─────────────────────────────────────── -->
   <nav id="mobileBottomNav" class="flex md:hidden">
     <div class="flex items-stretch w-full">
-      <button class="mobile-nav-btn active" id="mobileNavOrb" onclick="switchView('orb'); setMobileNav('orb')">
+      <button class="mobile-nav-btn active" id="mobileNavOrb" onclick="switchView('orb')">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="9" stroke-width="1.8"/>
           <circle cx="12" cy="12" r="4" stroke-width="1.8"/>
@@ -834,11 +901,11 @@
         </svg>
         CORE
       </button>
-      <button class="mobile-nav-btn" id="mobileNavChat" onclick="switchView('chat'); setMobileNav('chat')">
+      <button class="mobile-nav-btn" id="mobileNavChat" onclick="switchView('chat')">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
         </svg>
-        CHAT
+        STREAM
       </button>
       <button class="mobile-nav-btn" id="mobileNavMic" onclick="toggleMic()">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -851,7 +918,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
         </svg>
-        CAMERA
+        VISION
       </button>
       <button class="mobile-nav-btn" id="mobileNavMenu" onclick="toggleMobileMenu()">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -863,6 +930,9 @@
   </nav>
 
 <script>
+// ══════════════════════════════════════════════════════════════════════════════
+// AURA 2.0 ARCHITECTURE ENGINE
+// ══════════════════════════════════════════════════════════════════════════════
 const API_BASE = (window.location.protocol === 'http:' || window.location.protocol === 'https:')
   ? ''
   : 'http://localhost:3000';
@@ -876,7 +946,7 @@ let historyLogs = JSON.parse(localStorage.getItem('aura_history_logs') || '[]');
 let audioCtx = null;
 let gainNode = null;
 
-// DOM Elements
+// DOM Cache
 const orbView = document.getElementById('orbView');
 const chatView = document.getElementById('chatView');
 const chatArea = document.getElementById('chatArea');
@@ -892,7 +962,6 @@ const glowRing2 = document.getElementById('glowRing2');
 const glowRing3 = document.getElementById('glowRing3');
 const liveSubtitle = document.getElementById('liveSubtitle');
 const audioCont = document.getElementById('audioContainer');
-const audioTrackStatus = document.getElementById('audioTrackStatus');
 const soundUnlockBtn = document.getElementById('soundUnlockBtn');
 const soundIcon = document.getElementById('soundIcon');
 const soundText = document.getElementById('soundText');
@@ -901,7 +970,6 @@ const historyList = document.getElementById('historyList');
 const historyCount = document.getElementById('historyCount');
 const authModal = document.getElementById('authModal');
 const userNameDisplay = document.getElementById('userNameDisplay');
-const userContactDisplay = document.getElementById('userContactDisplay');
 const wakeBadge = document.getElementById('wakeBadge');
 const wakeDot = document.getElementById('wakeDot');
 const wakeText = document.getElementById('wakeText');
@@ -915,16 +983,16 @@ const cameraVideo = document.getElementById('cameraVideo');
 const fileInput = document.getElementById('fileInput');
 const attachmentTray = document.getElementById('attachmentTray');
 
-// State
+// State flags
 let cameraActive = false;
 let attachedFiles = [];
 let wakeActive = false;
 let wakeRecog = null;
-let wakeTimeout = null;
 let wakeCountdownInterval = null;
 let wakeTimeRemaining = 30;
 let wakeWordEnabled = true;
 let continuousMode = false;
+let currentAiState = 'idle'; // idle | listening | thinking | speaking
 
 // ── Web Audio Booster (+350% Gain) ──────────────────────────────────────────
 function boostAudioElement(el) {
@@ -964,16 +1032,18 @@ function forceUnlockSound() {
     boostAudioElement(el);
     if (el.paused) el.play().catch(() => {});
   });
-  soundUnlockBtn.className = "btn-action px-3 py-1.5 rounded-2xl text-xs font-mono text-cyan-300 border border-cyan-500/60 flex items-center gap-1.5 shadow-lg bg-cyan-500/20";
-  soundIcon.textContent = "📢";
-  soundText.textContent = "BOOSTED 3.5x SOUND";
+  if (soundUnlockBtn) {
+    soundUnlockBtn.className = "glass-pill px-3 py-1.5 rounded-full text-xs font-telemetry text-cyan-300 border border-cyan-500/60 flex items-center gap-1.5 shadow-lg bg-cyan-500/20";
+    if (soundIcon) soundIcon.textContent = "📢";
+    if (soundText) soundText.textContent = "3.5x BOOSTED";
+  }
 }
 
 ['pointerdown', 'click', 'keydown', 'touchstart'].forEach(evt => {
   document.addEventListener(evt, forceUnlockSound, { passive: true });
 });
 
-// Enter key in input fires sendText immediately on keydown (saves ~80-120ms vs keyup)
+// Keyboard event shortcuts
 msgInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
@@ -986,7 +1056,34 @@ document.addEventListener('keydown', (e) => {
     e.preventDefault();
     toggleMic();
   }
+  if (e.key === 'Escape') {
+    closeAuthModal();
+    if (!historyDrawer.classList.contains('-translate-x-full')) toggleHistoryDrawer();
+    const mMenu = document.getElementById('mobileMenu');
+    if (mMenu && mMenu.classList.contains('open')) toggleMobileMenu();
+  }
 });
+
+// ── Polymorphic AI State Machine ────────────────────────────────────────────
+function setAiState(state) {
+  currentAiState = state;
+  const elements = [visualOrb, orbContainer, glowRing1, glowRing2, glowRing3].filter(Boolean);
+  
+  elements.forEach(el => {
+    el.classList.remove('speaking', 'listening', 'thinking');
+    if (state !== 'idle') el.classList.add(state);
+  });
+
+  if (state === 'speaking') {
+    setStatus('speaking');
+  } else if (state === 'listening') {
+    setStatus('online');
+  } else if (state === 'thinking') {
+    setStatus('online');
+  } else if (state === 'idle') {
+    setStatus('online');
+  }
+}
 
 // ── Views & UI Helpers ───────────────────────────────────────────────────────
 function switchView(view) {
@@ -996,15 +1093,14 @@ function switchView(view) {
   if (view === 'orb') {
     orbView.classList.remove('opacity-0', 'pointer-events-none');
     chatView.classList.add('opacity-0', 'pointer-events-none');
-    if (viewOrbBtn) viewOrbBtn.className = "px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40";
-    if (viewChatBtn) viewChatBtn.className = "px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 text-white/60 hover:text-white";
+    if (viewOrbBtn) viewOrbBtn.className = "px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm flex items-center gap-1.5 cursor-pointer";
+    if (viewChatBtn) viewChatBtn.className = "px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 text-white/60 hover:text-white flex items-center gap-1.5 cursor-pointer";
   } else {
     chatView.classList.remove('opacity-0', 'pointer-events-none');
     orbView.classList.add('opacity-0', 'pointer-events-none');
-    if (viewChatBtn) viewChatBtn.className = "px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40";
-    if (viewOrbBtn) viewOrbBtn.className = "px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 text-white/60 hover:text-white";
+    if (viewChatBtn) viewChatBtn.className = "px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm flex items-center gap-1.5 cursor-pointer";
+    if (viewOrbBtn) viewOrbBtn.className = "px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 text-white/60 hover:text-white flex items-center gap-1.5 cursor-pointer";
   }
-  // Sync mobile bottom nav active state
   setMobileNav(view);
 }
 
@@ -1013,10 +1109,10 @@ function toggleHistoryDrawer() {
 }
 
 function renderHistory() {
-  historyCount.textContent = historyLogs.length;
-  // sync mobile count
+  if (historyCount) historyCount.textContent = historyLogs.length;
   const mobileCount = document.getElementById('mobileHistoryCount');
   if (mobileCount) mobileCount.textContent = historyLogs.length;
+  
   if (historyLogs.length === 0) {
     historyList.innerHTML = `<p class="text-xs text-white/30 italic text-center py-6">No saved history yet</p>`;
     return;
@@ -1024,9 +1120,9 @@ function renderHistory() {
   historyList.innerHTML = historyLogs.map(item => {
     const isUser = item.isUser;
     return `
-      <div class="p-3 rounded-xl border text-xs ${isUser ? 'bg-purple-900/20 border-purple-500/30' : 'bg-cyan-900/20 border-cyan-500/30'}">
-        <div class="flex items-center justify-between text-[10px] mb-1 font-mono">
-          <span class="font-bold ${isUser ? 'text-purple-300' : 'text-cyan-300'}">${isUser ? '👤 ' + item.sender : '✦ Aura'}</span>
+      <div class="p-3.5 rounded-2xl border text-xs ${isUser ? 'bg-purple-900/15 border-purple-500/30' : 'bg-cyan-900/15 border-cyan-500/30'}">
+        <div class="flex items-center justify-between text-[10px] mb-1 font-telemetry">
+          <span class="font-bold ${isUser ? 'text-purple-300' : 'text-cyan-300'}">${isUser ? '👤 ' + item.sender : '✦ AURA 2.0'}</span>
           <span class="text-white/40">${item.time}</span>
         </div>
         <p class="text-white/90 leading-relaxed">${item.text}</p>
@@ -1049,21 +1145,19 @@ function handleAuthSubmit(e) {
   const email = document.getElementById('authEmailInput').value.trim() || 'user@gmail.com';
   const profile = { name, contact: email };
   localStorage.setItem('aura_user_profile', JSON.stringify(profile));
-  userNameDisplay.textContent = profile.name;
-  userContactDisplay.textContent = profile.contact;
-  // sync mobile menu
+  
+  if (userNameDisplay) userNameDisplay.textContent = profile.name;
   const mUN = document.getElementById('mobileUserName');
   const mUE = document.getElementById('mobileUserEmail');
   if (mUN) mUN.textContent = profile.name.toUpperCase();
   if (mUE) mUE.textContent = profile.contact;
   closeAuthModal();
-  addMsg('', `✓ Profile saved: ${profile.name} (${profile.contact})`, 'system');
+  addMsg('', `✓ Profile updated: ${profile.name} (${profile.contact})`, 'system');
 }
 
 function initProfile() {
   const profile = JSON.parse(localStorage.getItem('aura_user_profile') || '{"name":"User","contact":"user@gmail.com"}');
-  userNameDisplay.textContent = profile.name;
-  userContactDisplay.textContent = profile.contact;
+  if (userNameDisplay) userNameDisplay.textContent = profile.name;
   const mUN = document.getElementById('mobileUserName');
   const mUE = document.getElementById('mobileUserEmail');
   if (mUN) mUN.textContent = profile.name.toUpperCase();
@@ -1073,15 +1167,15 @@ function initProfile() {
 
 function setStatus(state) {
   const states = {
-    connecting: { color: '#6b7280', text: 'connecting' },
-    online:     { color: '#10b981', text: 'ready' },
-    speaking:   { color: '#00f2fe', text: 'speaking' },
-    error:      { color: '#ef4444', text: 'error' },
+    connecting: { color: '#6b7280', text: 'CONNECTING' },
+    online:     { color: '#10b981', text: 'READY' },
+    speaking:   { color: '#00f2fe', text: 'SPEAKING' },
+    error:      { color: '#ef4444', text: 'ERROR' },
   };
   const s = states[state] || states.connecting;
-  statusDot.style.background = s.color;
-  statusText.textContent = s.text;
-  // sync mobile status
+  if (statusDot) statusDot.style.background = s.color;
+  if (statusText) statusText.textContent = s.text;
+  
   const mSD = document.getElementById('mobileStatusDot');
   const mST = document.getElementById('mobileStatusText');
   if (mSD) mSD.style.background = s.color;
@@ -1108,7 +1202,8 @@ function addMsg(sender, text, type = 'aura') {
     liveSubtitle.textContent = text;
     liveSubtitle.className = 'text-sm text-cyan-300 font-normal';
   } else if (type === 'you') {
-    liveSubtitle.textContent = `${userNameDisplay.textContent}: ${text}`;
+    const curName = userNameDisplay ? userNameDisplay.textContent : 'You';
+    liveSubtitle.textContent = `${curName}: ${text}`;
     liveSubtitle.className = 'text-sm text-white/80 font-normal';
   } else {
     liveSubtitle.textContent = text;
@@ -1116,8 +1211,9 @@ function addMsg(sender, text, type = 'aura') {
   }
 
   if (type !== 'system') {
+    const curName = userNameDisplay ? userNameDisplay.textContent : 'User';
     historyLogs.push({
-      sender: type === 'you' ? userNameDisplay.textContent : 'Aura',
+      sender: type === 'you' ? curName : 'AURA 2.0',
       isUser: type === 'you',
       text: text,
       time: ts,
@@ -1129,13 +1225,14 @@ function addMsg(sender, text, type = 'aura') {
   const wrap = document.createElement('div');
   if (type === 'system') {
     wrap.className = 'msg-anim flex justify-center';
-    wrap.innerHTML = `<div class="msg-system px-4 py-1 text-[11px] text-white/40 italic rounded-xl font-mono">${text}</div>`;
+    wrap.innerHTML = `<div class="msg-system px-4 py-1 text-[11px] text-white/50 italic rounded-full font-telemetry">${text}</div>`;
   } else if (type === 'you') {
+    const curName = userNameDisplay ? userNameDisplay.textContent : 'User';
     wrap.className = 'msg-anim flex flex-col items-end gap-1';
     wrap.innerHTML = `
       <div class="flex items-center gap-1.5">
-        <span class="text-[9px] text-white/30 font-mono">${ts}</span>
-        <span class="text-xs font-semibold text-purple-300">${userNameDisplay.textContent}</span>
+        <span class="text-[9px] text-white/30 font-telemetry">${ts}</span>
+        <span class="text-xs font-semibold text-purple-300">${curName}</span>
         <span class="text-xs">👤</span>
       </div>
       <div class="msg-you px-5 py-3 text-sm text-white/95 max-w-[85%] shadow-lg">${text}</div>`;
@@ -1144,8 +1241,8 @@ function addMsg(sender, text, type = 'aura') {
     wrap.innerHTML = `
       <div class="flex items-center gap-1.5">
         <span class="text-xs text-cyan-400">✦</span>
-        <span class="text-xs font-semibold text-cyan-300">Aura</span>
-        <span class="text-[9px] text-white/30 font-mono">${ts}</span>
+        <span class="text-xs font-semibold text-cyan-300">AURA 2.0</span>
+        <span class="text-[9px] text-white/30 font-telemetry">${ts}</span>
       </div>
       <div class="msg-aura px-5 py-3 text-sm text-white/95 max-w-[85%] shadow-lg">${text}</div>`;
   }
@@ -1157,7 +1254,7 @@ function addMsg(sender, text, type = 'aura') {
 // ── Connect Room ─────────────────────────────────────────────────────────────
 async function connectRoom() {
   setStatus('connecting');
-  addMsg('', '✦ Establishing connection with Aura…', 'system');
+  addMsg('', '✦ Establishing connection with AURA 2.0…', 'system');
 
   const LKClient = window.LivekitClient;
   if (!LKClient || !LKClient.Room) {
@@ -1169,7 +1266,6 @@ async function connectRoom() {
   const { Room, RoomEvent, Track } = LKClient;
 
   let cfg;
-  // Try the API in order: same-origin first, then localhost fallbacks
   const candidates = [
     `${API_BASE}/api/token`,
     'http://localhost:3000/api/token',
@@ -1179,7 +1275,7 @@ async function connectRoom() {
   for (const endpoint of candidates) {
     try {
       const ctrl = new AbortController();
-      const tid = setTimeout(() => ctrl.abort(), 1500);
+      const tid = setTimeout(() => ctrl.abort(), 1800);
       const res = await fetch(endpoint, { signal: ctrl.signal });
       clearTimeout(tid);
       if (res.ok) {
@@ -1214,22 +1310,23 @@ async function connectRoom() {
 
   room.on(RoomEvent.Connected, async () => {
     setStatus('online');
-    addMsg('', '✓ Space Online: ' + cfg.room, 'system');
+    addMsg('', '✓ AURA 2.0 Space Online: ' + cfg.room, 'system');
 
-    // Auto-enable microphone smoothly
     room.localParticipant.setMicrophoneEnabled(true).then(() => {
       micEnabled = true;
       micBtn.classList.add('active');
-      micLabel.textContent = 'LIVE MIC';
-      addMsg('', '🎙 Microphone ready — speak now or type below', 'system');
+      micLabel.textContent = 'LIVE';
+      setAiState('listening');
+      addMsg('', '🎙 Microphone active — speak freely or type below', 'system');
     }).catch(() => {
-      addMsg('', 'ℹ Click MIC button below or press Spacebar to speak', 'system');
+      addMsg('', 'ℹ Click MIC button below or press Space to speak', 'system');
     });
   });
 
   room.on(RoomEvent.Disconnected, () => {
     setStatus('error');
-    addMsg('', '✗ Disconnected from space', 'system');
+    setAiState('idle');
+    addMsg('', '✗ Disconnected from AURA 2.0 space', 'system');
   });
 
   room.on(RoomEvent.TrackSubscribed, (track) => {
@@ -1252,19 +1349,9 @@ async function connectRoom() {
   room.on(RoomEvent.ActiveSpeakersChanged, (speakers) => {
     const agentSpeaking = speakers.some(s => s.identity !== 'user');
     if (agentSpeaking) {
-      setStatus('speaking');
-      orbContainer.classList.add('speaking');
-      visualOrb.classList.add('speaking');
-      glowRing1.classList.add('speaking');
-      glowRing2.classList.add('speaking');
-      if (glowRing3) glowRing3.classList.add('speaking');
+      setAiState('speaking');
     } else {
-      setStatus('online');
-      orbContainer.classList.remove('speaking');
-      visualOrb.classList.remove('speaking');
-      glowRing1.classList.remove('speaking');
-      glowRing2.classList.remove('speaking');
-      if (glowRing3) glowRing3.classList.remove('speaking');
+      setAiState(micEnabled ? 'listening' : 'idle');
     }
   });
 
@@ -1274,7 +1361,7 @@ async function connectRoom() {
       if (text) {
         const isUser = participant && (participant.identity === 'user' || participant.identity === room.localParticipant?.identity);
         if (!isUser) {
-          addMsg('Aura', text, 'aura');
+          addMsg('AURA 2.0', text, 'aura');
         }
       }
     }
@@ -1311,7 +1398,7 @@ async function toggleCamera() {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } });
         cameraVideo.srcObject = stream;
       }
-      addMsg('', '📷 Camera vision active — Aura can see through your camera', 'system');
+      addMsg('', '📷 Camera vision active — AURA 2.0 can see your feed', 'system');
     } catch (err) {
       cameraActive = false;
       cameraBtn.classList.remove('bg-cyan-500/20', 'text-cyan-300', 'border', 'border-cyan-400');
@@ -1376,7 +1463,7 @@ function renderAttachmentChips() {
     return `
       <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 border border-cyan-500/30 text-xs text-white">
         ${icon}
-        <span class="truncate max-w-[130px] font-mono text-[11px] text-cyan-200">${file.filename}</span>
+        <span class="truncate max-w-[130px] font-telemetry text-[11px] text-cyan-200">${file.filename}</span>
         <button onclick="removeAttachment(${idx})" class="text-white/40 hover:text-rose-400 font-bold ml-1 text-xs cursor-pointer">✕</button>
       </div>`;
   }).join('');
@@ -1389,14 +1476,13 @@ async function sendText() {
   if (!text && !attachedFiles.length) return;
   msgInput.value = '';
 
-  // Show user message in chat immediately (no waiting)
   if (text) addMsg('You', text, 'you');
 
   const outgoing = text || (attachedFiles.length ? `I just uploaded these files. Please review them.` : '');
   if (outgoing) {
     parseSystemFastPath(outgoing);
-    liveSubtitle.textContent = `You: "${outgoing}"`;
-    // Fire-and-forget: publish to LiveKit immediately for minimum latency
+    setAiState('thinking');
+    
     if (room && room.localParticipant) {
       room.localParticipant.publishData(
         new TextEncoder().encode(outgoing),
@@ -1405,7 +1491,6 @@ async function sendText() {
     }
   }
 
-  // Handle file uploads in background (doesn't block AI reply)
   if (attachedFiles.length > 0) {
     const filesToUpload = [...attachedFiles];
     attachedFiles = [];
@@ -1422,7 +1507,7 @@ async function sendText() {
           const isImg = file.type.startsWith('image/');
           const previewHtml = isImg
             ? `<div class="mb-2"><img src="${uploadData.url}" class="max-w-[240px] max-h-[180px] rounded-xl border border-cyan-500/40 object-cover shadow-lg"/></div>`
-            : `<div class="mb-2 text-xs font-mono text-cyan-300">📄 ${file.filename}</div>`;
+            : `<div class="mb-2 text-xs font-telemetry text-cyan-300">📄 ${file.filename}</div>`;
           addMsg('You', previewHtml + `Uploaded: ${file.filename}`, 'you');
         }
       } catch (err) {
@@ -1442,11 +1527,13 @@ async function toggleMic() {
     await room.localParticipant.setMicrophoneEnabled(micEnabled);
     if (micEnabled) {
       micBtn.classList.add('active');
-      micLabel.textContent = 'LIVE MIC';
+      micLabel.textContent = 'LIVE';
+      setAiState('listening');
       addMsg('', '🎙 Microphone active', 'system');
     } else {
       micBtn.classList.remove('active');
       micLabel.textContent = 'MIC';
+      setAiState('idle');
       addMsg('', '🔇 Microphone muted', 'system');
     }
   } catch (e) {
@@ -1456,32 +1543,76 @@ async function toggleMic() {
 }
 
 // ── Wake Word & Continuous Listening ─────────────────────────────────────────
+function syncContinuousUI() {
+  const mBtn = document.getElementById('mobileContinuousBtn');
+  const mDot = document.getElementById('mobileContinuousDot');
+  const mTxt = document.getElementById('mobileContinuousText');
+  
+  if (continuousMode) {
+    if (continuousDot) continuousDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-ping';
+    if (continuousBtn) {
+      continuousBtn.className = 'glass-pill px-3 py-1.5 rounded-full text-[11px] font-telemetry text-emerald-300 border border-emerald-500/60 flex items-center gap-1.5 shadow-lg bg-emerald-500/20';
+    }
+    if (continuousText) continuousText.textContent = 'ALWAYS-ON: ON';
+    if (mDot) mDot.className = 'w-3 h-3 rounded-full bg-emerald-400 animate-ping flex-shrink-0';
+    if (mTxt) mTxt.textContent = 'ALWAYS-ON: ON';
+  } else {
+    if (continuousDot) continuousDot.className = 'w-2 h-2 rounded-full bg-slate-400';
+    if (continuousBtn) {
+      continuousBtn.className = 'glass-pill px-3 py-1.5 rounded-full text-[11px] font-telemetry text-purple-300 border border-purple-500/40 flex items-center gap-1.5 shadow-sm';
+    }
+    if (continuousText) continuousText.textContent = 'ALWAYS-ON: OFF';
+    if (mDot) mDot.className = 'w-3 h-3 rounded-full bg-slate-400 flex-shrink-0';
+    if (mTxt) mTxt.textContent = 'ALWAYS-ON: OFF';
+  }
+}
+
+function syncWakeUI() {
+  const mBadge = document.getElementById('mobileWakeBadge');
+  const mDot = document.getElementById('mobileWakeDot');
+  const mTxt = document.getElementById('mobileWakeText');
+
+  if (wakeActive) {
+    if (wakeBadge) wakeBadge.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full glass-pill border border-emerald-500/60 bg-emerald-500/20 cursor-pointer';
+    if (wakeDot) wakeDot.style.background = '#10b981';
+    if (wakeText) wakeText.textContent = `LISTENING (${wakeTimeRemaining}s)`;
+    if (mDot) mDot.style.background = '#10b981';
+    if (mTxt) mTxt.textContent = `AURA LISTENING (${wakeTimeRemaining}s)`;
+  } else if (!wakeWordEnabled) {
+    if (wakeBadge) wakeBadge.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full glass-pill border border-rose-500/40 cursor-pointer';
+    if (wakeDot) wakeDot.style.background = '#ef4444';
+    if (wakeText) wakeText.textContent = 'WAKE: OFF';
+    if (mDot) mDot.style.background = '#ef4444';
+    if (mTxt) mTxt.textContent = 'WAKE WORD OFF';
+  } else {
+    if (wakeBadge) wakeBadge.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full glass-pill cursor-pointer';
+    if (wakeDot) wakeDot.style.background = '#94a3b8';
+    if (wakeText) wakeText.textContent = 'WAKE: HEY AURA';
+    if (mDot) mDot.style.background = '#94a3b8';
+    if (mTxt) mTxt.textContent = 'SAY: HEY AURA';
+  }
+}
+
 function toggleContinuousMode() {
   continuousMode = !continuousMode;
+  syncContinuousUI();
+  
   if (continuousMode) {
-    continuousDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-ping';
-    continuousBtn.className = 'btn-action px-3 py-1.5 rounded-2xl text-[11px] font-mono text-emerald-300 border border-emerald-500/60 flex items-center gap-1.5 shadow-lg bg-emerald-500/20';
-    continuousText.textContent = 'ALWAYS LISTENING: ON';
-    
     wakeActive = true;
     if (wakeCountdownInterval) clearInterval(wakeCountdownInterval);
-    wakeBadge.className = 'wake-badge-listening flex items-center gap-2 px-3.5 py-1.5 rounded-full cursor-pointer';
-    wakeDot.style.background = '#10b981';
-    wakeText.textContent = 'ALWAYS LISTENING';
+    syncWakeUI();
 
     if (room && !micEnabled) {
       micEnabled = true;
       room.localParticipant.setMicrophoneEnabled(true).then(() => {
         micBtn.classList.add('active');
-        micLabel.textContent = 'LIVE MIC';
+        micLabel.textContent = 'LIVE';
+        setAiState('listening');
       }).catch(() => {});
     }
     playChime();
     addMsg('', '🎙 Always-On Listening enabled', 'system');
   } else {
-    continuousDot.className = 'w-2 h-2 rounded-full bg-slate-400';
-    continuousBtn.className = 'btn-action px-3 py-1.5 rounded-2xl text-[11px] font-mono text-purple-300 border border-purple-500/40 flex items-center gap-1.5 shadow-lg bg-purple-500/10';
-    continuousText.textContent = 'ALWAYS LISTENING: OFF';
     deactivateWakeMode();
     addMsg('', '🔕 Always-On Listening disabled — wake word standby', 'system');
   }
@@ -1490,7 +1621,7 @@ function toggleContinuousMode() {
 function initWakeWord() {
   const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRec) {
-    wakeText.textContent = 'BROWSER UNSUPPORTED';
+    if (wakeText) wakeText.textContent = 'BROWSER UNSUPPORTED';
     return;
   }
 
@@ -1504,7 +1635,6 @@ function initWakeWord() {
       const transcript = event.results[i][0].transcript.toLowerCase().trim();
       const isFinal = event.results[i].isFinal;
 
-      // React to wake word on INTERIM results for instant activation
       if (transcript.includes('hey aura') || transcript.includes('hi aura') ||
           transcript.includes('okay aura') || transcript.includes('ok aura') ||
           transcript.includes('wake up aura') || transcript.includes('hello aura') ||
@@ -1542,16 +1672,12 @@ function toggleWakeWordMode() {
   wakeWordEnabled = !wakeWordEnabled;
   if (wakeWordEnabled) {
     try { wakeRecog.start(); } catch(e) {}
-    wakeText.textContent = 'SAY: HEY AURA';
-    wakeDot.style.background = '#94a3b8';
-    wakeBadge.className = 'wake-badge-standby flex items-center gap-2 px-3.5 py-1.5 rounded-full cursor-pointer';
+    syncWakeUI();
     addMsg('', '🎙 Wake word active — say "Hey Aura"', 'system');
   } else {
     try { wakeRecog.stop(); } catch(e) {}
-    wakeText.textContent = 'WAKE WORD OFF';
-    wakeDot.style.background = '#ef4444';
-    wakeBadge.className = 'wake-badge-standby flex items-center gap-2 px-3.5 py-1.5 rounded-full cursor-pointer';
     deactivateWakeMode();
+    syncWakeUI();
     addMsg('', '🔕 Wake word detection paused', 'system');
   }
 }
@@ -1560,22 +1686,19 @@ function activateWakeMode() {
   if (continuousMode) return;
   wakeActive = true;
   wakeTimeRemaining = 30;
-
-  wakeBadge.className = 'wake-badge-listening flex items-center gap-2 px-3.5 py-1.5 rounded-full cursor-pointer';
-  wakeDot.style.background = '#10b981';
-  wakeText.textContent = `AURA LISTENING (${wakeTimeRemaining}s)`;
-
+  syncWakeUI();
   playChime();
 
   if (room && !micEnabled) {
     micEnabled = true;
     room.localParticipant.setMicrophoneEnabled(true).then(() => {
       micBtn.classList.add('active');
-      micLabel.textContent = 'LIVE MIC';
+      micLabel.textContent = 'LIVE';
+      setAiState('listening');
     }).catch(() => {});
   }
 
-  addMsg('', '✦ Hey! Aura is listening — speak now', 'system');
+  addMsg('', '✦ Hey! AURA 2.0 is listening — speak now', 'system');
 
   if (wakeCountdownInterval) clearInterval(wakeCountdownInterval);
   wakeCountdownInterval = setInterval(() => {
@@ -1585,7 +1708,7 @@ function activateWakeMode() {
     }
     wakeTimeRemaining--;
     if (wakeTimeRemaining > 0) {
-      wakeText.textContent = `AURA LISTENING (${wakeTimeRemaining}s)`;
+      syncWakeUI();
     } else {
       clearInterval(wakeCountdownInterval);
       deactivateWakeMode();
@@ -1597,16 +1720,14 @@ function deactivateWakeMode() {
   if (continuousMode) return;
   wakeActive = false;
   if (wakeCountdownInterval) clearInterval(wakeCountdownInterval);
-
-  wakeBadge.className = 'wake-badge-standby flex items-center gap-2 px-3.5 py-1.5 rounded-full cursor-pointer';
-  wakeDot.style.background = '#94a3b8';
-  wakeText.textContent = 'SAY: HEY AURA';
+  syncWakeUI();
 
   if (room && micEnabled) {
     micEnabled = false;
     room.localParticipant.setMicrophoneEnabled(false).then(() => {
       micBtn.classList.remove('active');
       micLabel.textContent = 'MIC';
+      setAiState('idle');
     }).catch(() => {});
   }
 }
@@ -1621,10 +1742,10 @@ function playChime() {
     gain.connect(audioCtx.destination);
     osc.frequency.setValueAtTime(880, audioCtx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.1);
-    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+    gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.28);
     osc.start(audioCtx.currentTime);
-    osc.stop(audioCtx.currentTime + 0.3);
+    osc.stop(audioCtx.currentTime + 0.28);
   } catch(e) {}
 }
 
@@ -1674,7 +1795,7 @@ function parseSystemFastPath(text) {
 // ── Mobile UI Helpers ─────────────────────────────────────────────────────────
 function toggleMobileMenu() {
   const menu = document.getElementById('mobileMenu');
-  menu.classList.toggle('open');
+  if (menu) menu.classList.toggle('open');
 }
 
 function setMobileNav(view) {
