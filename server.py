@@ -371,9 +371,24 @@ class AuraRequestHandler(BaseHTTPRequestHandler):
     def log_message(self, fmt, *args):
         # Suppress noisy HTTP request logging
         pass
+    
+
+def ensure_agent_running():
+    try:
+        res = subprocess.run(["pgrep", "-f", "agent.py dev"], capture_output=True, text=True)
+        if not res.stdout.strip():
+            venv_python = BASE_DIR / "venv" / "bin" / "python3"
+            python_bin = str(venv_python) if venv_python.exists() else "python3"
+            print("[Server] Starting AI agent worker in background...")
+            subprocess.Popen([python_bin, str(BASE_DIR / "agent.py"), "dev"], cwd=str(BASE_DIR))
+        else:
+            print("[Server] AI agent worker is active.")
+    except Exception as e:
+        print(f"[Server] Note on agent auto-start: {e}")
 
 
 def main():
+    ensure_agent_running()
     try:
         server = DualStackThreadingServer(("::", PORT), AuraRequestHandler)
     except Exception:

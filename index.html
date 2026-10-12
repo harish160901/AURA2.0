@@ -692,7 +692,7 @@
           <div id="glowRing2" class="cyber-ring-2"></div>
           <div id="glowRing1" class="cyber-ring-1"></div>
           
-          <div id="visualOrb" class="cyber-core-sphere shadow-2xl" onclick="forceUnlockSound()" title="Tap to interact or boost audio">
+          <div id="visualOrb" class="cyber-core-sphere shadow-2xl" onclick="enableAudioAndMic()" title="Tap to Activate Voice & Audio">
             <!-- Center Sacred Geometry Emblem -->
             <svg class="w-16 h-16 md:w-20 md:h-20 filter drop-shadow-[0_0_18px_rgba(0,242,254,1)] animate-[spin_24s_linear_infinite]" viewBox="0 0 100 100" fill="none">
               <circle cx="50" cy="50" r="44" stroke="url(#coreGrad1)" stroke-width="2.2" stroke-dasharray="12 6" />
@@ -882,10 +882,18 @@
     </div>
   </div>
 
-  <div id="audioContainer" class="fixed bottom-4 right-4 z-40 hidden flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-cyan-500/30 text-xs font-telemetry text-cyan-300">
-    <span class="animate-pulse">📢</span>
-    <span id="audioTrackStatus">+350% GAIN BOOSTED</span>
+  <!-- Audio Autoplay & Mic Activation Banner -->
+  <div id="audioPromptBanner" class="hidden fixed top-20 left-1/2 transform -translate-x-1/2 z-50 glass-surface px-5 py-2.5 rounded-2xl border border-cyan-400/60 shadow-2xl flex items-center gap-3 cursor-pointer animate-pulse" onclick="enableAudioAndMic()">
+    <span class="text-xl">🎙🔊</span>
+    <div>
+      <p class="text-xs font-bold text-cyan-300">Tap to Enable Voice & Audio</p>
+      <p class="text-[10px] text-white/50">Click once to activate microphone & audio output</p>
+    </div>
+    <button class="btn-primary px-3 py-1 rounded-xl text-xs font-bold text-white ml-2">Activate</button>
   </div>
+
+  <!-- Dedicated off-screen audio host (MUST NOT be display:none so browsers render audio tracks) -->
+  <div id="audioContainer" style="position:fixed;bottom:-9999px;left:-9999px;width:1px;height:1px;opacity:0.01;pointer-events:none;" aria-hidden="true"></div>
 
   <!-- ── MOBILE BOTTOM NAVIGATION BAR ─────────────────────────────────────── -->
   <nav id="mobileBottomNav" class="flex md:hidden">
@@ -994,53 +1002,62 @@ let wakeWordEnabled = true;
 let continuousMode = false;
 let currentAiState = 'idle'; // idle | listening | thinking | speaking
 
-// ── Web Audio Booster (+350% Gain) ──────────────────────────────────────────
-function boostAudioElement(el) {
-  if (!el) return;
+// ── Bulletproof Audio Playback & Unlocking Engine ───────────────────────────
+function showAudioBanner() {
+  const banner = document.getElementById('audioPromptBanner');
+  if (banner) banner.classList.remove('hidden');
+}
+
+function hideAudioBanner() {
+  const banner = document.getElementById('audioPromptBanner');
+  if (banner) banner.classList.add('hidden');
+}
+
+async function unlockAudioPlayback() {
+  hideAudioBanner();
+  if (room && typeof room.startAudio === 'function') {
+    try {
+      await room.startAudio();
+      console.log("[Audio] LiveKit room.startAudio() succeeded");
+    } catch (e) {
+      console.warn("[Audio] room.startAudio notice:", e);
+    }
+  }
   if (!audioCtx) {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
-  if (audioCtx.state === 'suspended') {
-    audioCtx.resume();
-  }
-  if (!el._boosted) {
-    try {
-      const source = audioCtx.createMediaElementSource(el);
-      gainNode = audioCtx.createGain();
-      gainNode.gain.value = 3.5;
-      source.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
-      el._boosted = true;
-    } catch (e) {
-      console.warn("Audio gain booster notice:", e);
-    }
-  }
-}
-
-function forceUnlockSound() {
   if (audioCtx && audioCtx.state === 'suspended') {
-    audioCtx.resume();
-  }
-  if (window.LivekitClient && window.LivekitClient.Room && window.LivekitClient.Room.audioContext) {
-    if (window.LivekitClient.Room.audioContext.state === 'suspended') {
-      window.LivekitClient.Room.audioContext.resume();
-    }
+    audioCtx.resume().catch(() => {});
   }
   document.querySelectorAll('audio').forEach(el => {
     el.volume = 1.0;
     el.muted = false;
-    boostAudioElement(el);
-    if (el.paused) el.play().catch(() => {});
+    if (el.paused) {
+      el.play().catch(e => console.warn("[Audio] play notice:", e));
+    }
   });
   if (soundUnlockBtn) {
     soundUnlockBtn.className = "glass-pill px-3 py-1.5 rounded-full text-xs font-telemetry text-cyan-300 border border-cyan-500/60 flex items-center gap-1.5 shadow-lg bg-cyan-500/20";
     if (soundIcon) soundIcon.textContent = "📢";
-    if (soundText) soundText.textContent = "3.5x BOOSTED";
+    if (soundText) soundText.textContent = "AUDIO ACTIVE";
   }
 }
 
+const forceUnlockSound = unlockAudioPlayback;
+
+async function enableAudioAndMic() {
+  await unlockAudioPlayback();
+  playChime();
+  if (room && room.localParticipant) {
+    if (!micEnabled) {
+      await toggleMic(true);
+    }
+  }
+}
+
+// User interactions unlock audio playback universally
 ['pointerdown', 'click', 'keydown', 'touchstart'].forEach(evt => {
-  document.addEventListener(evt, forceUnlockSound, { passive: true });
+  document.addEventListener(evt, unlockAudioPlayback, { passive: true });
 });
 
 // Keyboard event shortcuts
@@ -1313,13 +1330,16 @@ async function connectRoom() {
     addMsg('', '✓ AURA 2.0 Space Online: ' + cfg.room, 'system');
 
     room.localParticipant.setMicrophoneEnabled(true).then(() => {
-      micEnabled = true;
-      micBtn.classList.add('active');
-      micLabel.textContent = 'LIVE';
+      updateMicUI(true);
       setAiState('listening');
       addMsg('', '🎙 Microphone active — speak freely or type below', 'system');
-    }).catch(() => {
-      addMsg('', 'ℹ Click MIC button below or press Space to speak', 'system');
+      setTimeout(hookLocalMicVisualizer, 300);
+      hideAudioBanner();
+    }).catch((err) => {
+      console.warn("Auto-microphone pending user gesture:", err);
+      updateMicUI(false);
+      showAudioBanner();
+      addMsg('', 'ℹ Tap the screen or click MIC button to activate voice', 'system');
     });
   });
 
@@ -1331,18 +1351,49 @@ async function connectRoom() {
 
   room.on(RoomEvent.TrackSubscribed, (track) => {
     if (track.kind === Track.Kind.Audio) {
+      console.log("[Audio] Subscribed to agent audio track:", track.sid);
+      
+      // Clean up previous elements for this track
+      try { track.detach(); } catch(e) {}
+
       const el = track.attach();
-      el.id = 'agentAudioPlayer';
+      el.id = 'agentAudioPlayer_' + track.sid;
       el.autoplay = true;
-      el.controls = false;
+      el.playsInline = true;
       el.volume = 1.0;
       el.muted = false;
       
-      audioCont.appendChild(el);
-      boostAudioElement(el);
-      forceUnlockSound();
+      const cont = document.getElementById('audioContainer') || document.body;
+      cont.appendChild(el);
+      
+      // Play cleanly and report status
+      const playPromise = el.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          console.log("[Audio] Agent audio playback streaming cleanly");
+          hideAudioBanner();
+        }).catch((err) => {
+          console.warn("[Audio] Autoplay blocked, waiting for user gesture:", err);
+          showAudioBanner();
+        });
+      }
+
+      if (typeof room.startAudio === 'function') {
+        room.startAudio().catch(() => {});
+      }
     }
   });
+
+  if (RoomEvent.AudioPlaybackStatusChanged) {
+    room.on(RoomEvent.AudioPlaybackStatusChanged, () => {
+      if (!room.canPlaybackAudio) {
+        console.warn("[Audio] LiveKit reports audio playback paused by browser");
+        showAudioBanner();
+      } else {
+        hideAudioBanner();
+      }
+    });
+  }
 
   room.on(RoomEvent.TrackUnsubscribed, (track) => track.detach());
 
@@ -1517,28 +1568,101 @@ async function sendText() {
   }
 }
 
-// ── Microphone Toggle ───────────────────────────────────────────────────────
-async function toggleMic() {
-  forceUnlockSound();
-  if (!room) return;
-  micEnabled = !micEnabled;
+// ── Microphone Toggle & Real-time Visualizer ─────────────────────────────────
+function updateMicUI(active) {
+  micEnabled = active;
+  if (active) {
+    micBtn.classList.add('active');
+    micLabel.textContent = 'LIVE';
+    const mNavMicLabel = document.getElementById('mobileNavMicLabel');
+    if (mNavMicLabel) mNavMicLabel.textContent = 'LIVE';
+    const mNavMic = document.getElementById('mobileNavMic');
+    if (mNavMic) mNavMic.classList.add('active');
+  } else {
+    micBtn.classList.remove('active');
+    micLabel.textContent = 'MIC';
+    const mNavMicLabel = document.getElementById('mobileNavMicLabel');
+    if (mNavMicLabel) mNavMicLabel.textContent = 'MIC';
+    const mNavMic = document.getElementById('mobileNavMic');
+    if (mNavMic) mNavMic.classList.remove('active');
+  }
+}
+
+let localMicAnalyser = null;
+let localMicSource = null;
+
+function hookLocalMicVisualizer() {
+  try {
+    if (!room || !room.localParticipant) return;
+    const pub = room.localParticipant.getTrackPublication(LivekitClient.Track.Source.Microphone);
+    if (!pub || !pub.track || !pub.track.mediaStreamTrack) {
+      setTimeout(hookLocalMicVisualizer, 500);
+      return;
+    }
+
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+
+    const stream = new MediaStream([pub.track.mediaStreamTrack]);
+    localMicSource = audioCtx.createMediaStreamSource(stream);
+    localMicAnalyser = audioCtx.createAnalyser();
+    localMicAnalyser.fftSize = 64;
+    localMicSource.connect(localMicAnalyser);
+
+    const data = new Uint8Array(localMicAnalyser.frequencyBinCount);
+
+    function renderSpectrum() {
+      if (!micEnabled) return;
+      localMicAnalyser.getByteFrequencyData(data);
+      let sum = 0;
+      for (let i = 0; i < data.length; i++) sum += data[i];
+      const avg = sum / data.length;
+
+      const eqBars = document.querySelectorAll('.eq-bar');
+      if (eqBars.length >= 4) {
+        eqBars[0].style.height = `${Math.max(4, Math.min(22, (data[1] / 255) * 22))}px`;
+        eqBars[1].style.height = `${Math.max(4, Math.min(22, (data[3] / 255) * 22))}px`;
+        eqBars[2].style.height = `${Math.max(4, Math.min(22, (data[5] / 255) * 22))}px`;
+        eqBars[3].style.height = `${Math.max(4, Math.min(22, (data[7] / 255) * 22))}px`;
+      }
+
+      if (avg > 14 && currentAiState !== 'speaking') {
+        setAiState('listening');
+      }
+
+      requestAnimationFrame(renderSpectrum);
+    }
+    requestAnimationFrame(renderSpectrum);
+  } catch (err) {
+    console.warn("Visualizer note:", err);
+  }
+}
+
+async function toggleMic(forceState) {
+  unlockAudioPlayback();
+  if (!room || !room.localParticipant) {
+    addMsg('', 'Please wait for connection before toggling mic.', 'system');
+    return;
+  }
+
+  const targetState = (forceState !== undefined) ? forceState : !micEnabled;
 
   try {
-    await room.localParticipant.setMicrophoneEnabled(micEnabled);
-    if (micEnabled) {
-      micBtn.classList.add('active');
-      micLabel.textContent = 'LIVE';
+    await room.localParticipant.setMicrophoneEnabled(targetState);
+    updateMicUI(targetState);
+    if (targetState) {
       setAiState('listening');
-      addMsg('', '🎙 Microphone active', 'system');
+      addMsg('', '🎙 Microphone active — speak now', 'system');
+      setTimeout(hookLocalMicVisualizer, 200);
     } else {
-      micBtn.classList.remove('active');
-      micLabel.textContent = 'MIC';
       setAiState('idle');
       addMsg('', '🔇 Microphone muted', 'system');
     }
   } catch (e) {
-    micEnabled = !micEnabled;
-    addMsg('', 'Mic error: ' + e.message, 'system');
+    updateMicUI(false);
+    console.error("Mic toggle error:", e);
+    addMsg('', '🎙 Microphone permission error: ' + e.message, 'system');
+    showAudioBanner();
   }
 }
 

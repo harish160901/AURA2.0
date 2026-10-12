@@ -88,7 +88,7 @@ APP_MAP = {
 }
 
 SYSTEM_INSTRUCTIONS = (
-    "Your name is Aura. You are an ultra-fast, intelligent, multimodal voice and vision assistant with direct control over the user's macOS computer. "
+    "Your name is Aura 2.0. You are an ultra-fast, intelligent, multimodal voice and vision assistant with direct control over the user's macOS computer. "
     "When the user enables their camera, you can see what is in front of the camera and describe or answer questions about it. "
     "You have tools to open and close any Mac application (like Safari, Maps, Finder, Notes, Terminal, WhatsApp, etc.), "
     "open or list any folder (Desktop, Documents, Downloads, Home, etc.), adjust system volume, and check battery. "
@@ -257,7 +257,7 @@ async def my_agent(ctx: agents.JobContext):
 
     # Initial spoken introduction
     session.generate_reply(
-        instructions="Greet the user as Aura in one quick sentence. Tell them you are ready for voice, vision, and system tasks."
+        instructions="Greet the user as Aura 2.0 in one quick sentence. Tell them you are ready for voice, vision, and system tasks."
     )
 
 
