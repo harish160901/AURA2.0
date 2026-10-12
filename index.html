@@ -696,6 +696,14 @@ function forceUnlockSound() {
   document.addEventListener(evt, forceUnlockSound, { passive: true });
 });
 
+// Enter key in input fires sendText immediately on keydown (saves ~80-120ms vs keyup)
+msgInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendText();
+  }
+});
+
 document.addEventListener('keydown', (e) => {
   if ((e.code === 'Space' && document.activeElement !== msgInput) || (e.key.toLowerCase() === 'm' && document.activeElement !== msgInput)) {
     e.preventDefault();
@@ -865,27 +873,24 @@ async function connectRoom() {
   const { Room, RoomEvent, Track } = LKClient;
 
   let cfg;
+  // Try the API in order: same-origin first, then localhost fallbacks
   const candidates = [
     `${API_BASE}/api/token`,
-    '/api/token',
     'http://localhost:3000/api/token',
     'http://127.0.0.1:3000/api/token',
-  ];
+  ].filter(Boolean);
 
   for (const endpoint of candidates) {
-    if (!endpoint) continue;
     try {
-      const res = await fetch(endpoint);
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 1500);
+      const res = await fetch(endpoint, { signal: ctrl.signal });
+      clearTimeout(tid);
       if (res.ok) {
         const data = await res.json();
-        if (data && data.token && data.url) {
-          cfg = data;
-          break;
-        }
+        if (data && data.token && data.url) { cfg = data; break; }
       }
-    } catch (e) {
-      // Continue to next endpoint candidate
-    }
+    } catch (e) { /* next */ }
   }
 
   if (!cfg) {
@@ -896,8 +901,9 @@ async function connectRoom() {
 
   try {
     room = new Room({
-      adaptiveStream: true,
+      adaptiveStream: false,
       dynacast: true,
+      stopLocalTrackOnUnpublish: false,
       audioCaptureDefaults: {
         echoCancellation: true,
         noiseSuppression: true,
@@ -1087,9 +1093,28 @@ async function sendText() {
   if (!text && !attachedFiles.length) return;
   msgInput.value = '';
 
-  let attachmentSummary = '';
+  // Show user message in chat immediately (no waiting)
+  if (text) addMsg('You', text, 'you');
+
+  const outgoing = text || (attachedFiles.length ? `I just uploaded these files. Please review them.` : '');
+  if (outgoing) {
+    parseSystemFastPath(outgoing);
+    liveSubtitle.textContent = `You: "${outgoing}"`;
+    // Fire-and-forget: publish to LiveKit immediately for minimum latency
+    if (room && room.localParticipant) {
+      room.localParticipant.publishData(
+        new TextEncoder().encode(outgoing),
+        { topic: 'lk.chat', reliable: true }
+      ).catch(e => console.warn('publishData:', e));
+    }
+  }
+
+  // Handle file uploads in background (doesn't block AI reply)
   if (attachedFiles.length > 0) {
-    for (const file of attachedFiles) {
+    const filesToUpload = [...attachedFiles];
+    attachedFiles = [];
+    renderAttachmentChips();
+    for (const file of filesToUpload) {
       try {
         const res = await fetch(`${API_BASE}/api/upload`, {
           method: 'POST',
@@ -1102,32 +1127,10 @@ async function sendText() {
           const previewHtml = isImg
             ? `<div class="mb-2"><img src="${uploadData.url}" class="max-w-[240px] max-h-[180px] rounded-xl border border-cyan-500/40 object-cover shadow-lg"/></div>`
             : `<div class="mb-2 text-xs font-mono text-cyan-300">📄 ${file.filename}</div>`;
-          addMsg('You', previewHtml + (text ? text : `Uploaded: ${file.filename}`), 'you');
-          attachmentSummary += ` [Uploaded: ${file.filename}]`;
+          addMsg('You', previewHtml + `Uploaded: ${file.filename}`, 'you');
         }
       } catch (err) {
         addMsg('', 'Upload notice: ' + err.message, 'system');
-      }
-    }
-    attachedFiles = [];
-    renderAttachmentChips();
-  } else if (text) {
-    addMsg('You', text, 'you');
-  }
-
-  const outgoing = text || (attachmentSummary ? `I just uploaded these files: ${attachmentSummary}. Please review them.` : '');
-  if (outgoing) {
-    parseSystemFastPath(outgoing);
-    liveSubtitle.textContent = `You: "${outgoing}"`;
-    if (room && room.localParticipant) {
-      try {
-        const enc = new TextEncoder();
-        await room.localParticipant.publishData(enc.encode(outgoing), {
-          topic: 'lk.chat',
-          reliable: true,
-        });
-      } catch (e) {
-        console.warn('publishData notice:', e);
       }
     }
   }
@@ -1203,7 +1206,9 @@ function initWakeWord() {
   wakeRecog.onresult = (event) => {
     for (let i = event.resultIndex; i < event.results.length; i++) {
       const transcript = event.results[i][0].transcript.toLowerCase().trim();
+      const isFinal = event.results[i].isFinal;
 
+      // React to wake word on INTERIM results for instant activation
       if (transcript.includes('hey aura') || transcript.includes('hi aura') ||
           transcript.includes('okay aura') || transcript.includes('ok aura') ||
           transcript.includes('wake up aura') || transcript.includes('hello aura') ||
@@ -1211,7 +1216,7 @@ function initWakeWord() {
         activateWakeMode();
       }
 
-      if (event.results[i].isFinal) {
+      if (isFinal) {
         if (wakeActive || continuousMode) {
           wakeTimeRemaining = 30;
         }

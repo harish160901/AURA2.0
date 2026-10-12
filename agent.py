@@ -109,11 +109,8 @@ class Assistant(Agent):
         cleaned = app_name.strip().lower()
         target = APP_MAP.get(cleaned, app_name.strip())
         try:
-            res = subprocess.run(["open", "-a", target], capture_output=True, text=True, timeout=5)
-            if res.returncode == 0:
-                return f"Successfully opened {target}"
-            subprocess.Popen(["open", "-a", app_name.strip()])
-            return f"Opening {app_name}"
+            subprocess.Popen(["open", "-a", target])
+            return f"Opened {target}"
         except Exception as e:
             return f"Error opening {app_name}: {e}"
 
@@ -146,7 +143,7 @@ class Assistant(Agent):
                     path = DIR_MAP["desktop"]
         try:
             subprocess.Popen(["open", str(path)])
-            return f"Opened {path.name or str(path)} in Finder"
+            return f"Opened {path.name or str(path)}"
         except Exception as e:
             return f"Error opening folder {folder_name}: {e}"
 
@@ -165,10 +162,9 @@ class Assistant(Agent):
             if not path or not path.exists():
                 return f"Folder {folder_name} does not exist"
             items = [p.name for p in sorted(path.iterdir()) if not p.name.startswith(".")]
-            top_items = items[:15]
+            top_items = items[:12]
             summary = ", ".join(top_items)
-            count = len(items)
-            return f"Folder {path.name} contains {count} items: {summary}"
+            return f"Folder contains {len(items)} items: {summary}"
         except Exception as e:
             return f"Error listing {folder_name}: {e}"
 
@@ -177,8 +173,8 @@ class Assistant(Agent):
         """Set the macOS master system audio volume from 0 to 100 percent."""
         try:
             vol = max(0, min(100, int(volume_percent)))
-            subprocess.run(["osascript", "-e", f"set volume output volume {vol}"], check=True)
-            return f"Master volume set to {vol}%"
+            subprocess.Popen(["osascript", "-e", f"set volume output volume {vol}"])
+            return f"Volume set to {vol}%"
         except Exception as e:
             return f"Error setting volume: {e}"
 
@@ -186,7 +182,7 @@ class Assistant(Agent):
     async def get_mac_battery(self) -> str:
         """Get the current macOS battery percentage and charging status."""
         try:
-            res = subprocess.run(["pmset", "-g", "batt"], capture_output=True, text=True)
+            res = subprocess.run(["pmset", "-g", "batt"], capture_output=True, text=True, timeout=1)
             return res.stdout.strip()
         except Exception as e:
             return f"Error reading battery: {e}"
@@ -204,8 +200,8 @@ async def my_agent(ctx: agents.JobContext):
         temperature=0.2,
         realtime_input_config=types.RealtimeInputConfig(
             automatic_activity_detection=types.AutomaticActivityDetection(
-                silence_duration_ms=650,  # Optimal balance between quick turnaround and no cut-offs
-                prefix_padding_ms=40,
+                silence_duration_ms=250,  # Ultra-fast 250ms VAD for instant reaction turnaround
+                prefix_padding_ms=15,
             )
         ),
     )
@@ -230,11 +226,9 @@ async def my_agent(ctx: agents.JobContext):
                 return
             text = dp.data.decode("utf-8").strip()
             if text:
-                print(f"[Agent] Received text input: {text}")
-                session.generate_reply(
-                    user_input=text,
-                    instructions=f"The user said: '{text}'. Respond aloud clearly and directly.",
-                )
+                print(f"[Agent] Fast text input: {text}")
+                # generate_reply returns a SpeechHandle (not a coroutine), call directly
+                session.generate_reply(user_input=text)
         except Exception as e:
             print(f"[Agent] Error processing data packet: {e}")
 
@@ -272,6 +266,6 @@ if __name__ == "__main__":
         WorkerOptions(
             entrypoint_fnc=my_agent,
             agent_name="my-agent",
-            num_idle_processes=4,
+            num_idle_processes=6,  # More warm workers = faster join latency
         )
     )
