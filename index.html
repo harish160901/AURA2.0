@@ -22,7 +22,16 @@
       overflow: hidden;
       width: 100vw;
       height: 100vh;
+      height: 100dvh;
       color: #f8fafc;
+    }
+
+    /* ── Mobile Safe Area ── */
+    :root {
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --header-h: 64px;
+      --bottom-nav-h: 64px;
     }
     h1, h2, h3, .heading-font {
       font-family: 'Space Grotesk', sans-serif;
@@ -35,6 +44,13 @@
         linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
       background-size: 32px 32px, 64px 64px, 64px 64px;
+    }
+
+    /* ── Ambient blobs — smaller on mobile ── */
+    @media (max-width: 768px) {
+      .ab-1 { width: 280px !important; height: 280px !important; top: -60px !important; left: -60px !important; }
+      .ab-2 { width: 260px !important; height: 260px !important; bottom: -60px !important; right: -60px !important; }
+      .ab-3 { width: 200px !important; height: 200px !important; top: 35% !important; left: 30% !important; }
     }
 
     .aesthetic-blob {
@@ -107,6 +123,19 @@
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+    @media (max-width: 768px) {
+      .cyber-core-container {
+        width: 230px;
+        height: 230px;
+      }
+      .cyber-core-sphere {
+        width: 120px !important;
+        height: 120px !important;
+      }
+      .cyber-ring-1 { inset: -12px !important; }
+      .cyber-ring-2 { inset: -28px !important; }
+      .cyber-ring-3 { inset: -44px !important; }
     }
 
     .cyber-core-sphere {
@@ -298,6 +327,146 @@
       0%   { box-shadow: 0 0 12px rgba(16, 185, 129, 0.3); }
       100% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.7); }
     }
+
+    /* ════════════════════════════════════════
+       MOBILE APP-SHELL RESPONSIVE STYLES
+       ════════════════════════════════════════ */
+
+    /* ── Mobile Bottom Nav Bar ── */
+    #mobileBottomNav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      padding-bottom: var(--safe-bottom);
+      background: rgba(8, 10, 24, 0.96);
+      border-top: 1px solid rgba(0, 242, 254, 0.2);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+    .mobile-nav-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      padding: 10px 4px 8px;
+      font-size: 9px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      border: none;
+      background: none;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    .mobile-nav-btn.active {
+      color: #00f2fe;
+    }
+    .mobile-nav-btn svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    /* ── Mobile Hamburger Menu ── */
+    #mobileMenuBtn { display: none; }
+    #mobileMenu {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 60;
+      background: rgba(3,4,12,0.97);
+      backdrop-filter: blur(24px);
+      flex-direction: column;
+      padding: 0;
+      overflow-y: auto;
+    }
+    #mobileMenu.open { display: flex; }
+
+    /* ── Responsive header ── */
+    @media (max-width: 768px) {
+      /* Show mobile nav, hide desktop nav elements */
+      #mobileBottomNav { display: flex; }
+      #mobileMenuBtn { display: flex; }
+      #desktopNavTabs { display: none !important; }
+      #desktopRightControls { display: none !important; }
+
+      /* Compact header */
+      header {
+        padding: 10px 16px !important;
+        padding-top: calc(10px + var(--safe-top)) !important;
+      }
+      header h1 { font-size: 1.1rem !important; }
+      header .text-\[10px\] { display: none; }
+
+      /* Main area accounts for header + bottom nav */
+      main {
+        padding: 12px 12px 0 !important;
+        padding-bottom: calc(var(--bottom-nav-h) + 8px) !important;
+      }
+
+      /* Footer input dock */
+      footer {
+        padding: 6px 10px !important;
+        padding-bottom: calc(var(--bottom-nav-h) + 6px) !important;
+      }
+      footer .text-\[10px\] { display: none; }
+      #msgInput { font-size: 16px !important; } /* Prevent iOS zoom */
+
+      /* Orb view fills screen nicely */
+      #orbView {
+        max-width: 100% !important;
+        padding: 0 !important;
+      }
+      #orbView .glass-box {
+        border-radius: 20px !important;
+        padding: 20px 16px !important;
+      }
+
+      /* Chat view */
+      #chatView {
+        max-width: 100% !important;
+        inset: 12px !important;
+        inset-bottom: calc(var(--bottom-nav-h) + 60px) !important;
+      }
+
+      /* Camera PIP smaller on mobile */
+      #cameraPip {
+        width: 180px !important;
+        bottom: calc(var(--bottom-nav-h) + 70px) !important;
+        right: 12px !important;
+      }
+      #cameraPip video { height: 110px !important; }
+
+      /* History drawer full-width on mobile */
+      #historyDrawer { width: 100% !important; }
+
+      /* Input row compact */
+      #micBtn .text-\[11px\] { display: none; }
+    }
+
+    /* ── Touch-friendly hit targets ── */
+    @media (max-width: 768px) {
+      button, [role="button"] {
+        min-height: 40px;
+      }
+      .wake-badge-standby, .wake-badge-listening {
+        padding: 8px 12px !important;
+      }
+    }
+
+    /* ── Tablet 769px–1024px ── */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      #desktopRightControls > .wake-badge-standby,
+      #desktopRightControls > .wake-badge-listening { display: none; }
+      #continuousBtn .font-bold { font-size: 9px; }
+      #soundText { display: none; }
+    }
   </style>
 </head>
 <body class="bg-grid w-screen h-screen flex flex-col relative overflow-hidden">
@@ -328,8 +497,8 @@
       </div>
     </div>
 
-    <!-- Center View Switcher Tabs -->
-    <div class="flex items-center gap-1.5 p-1 rounded-2xl glass-base">
+    <!-- Center View Switcher Tabs — desktop only -->
+    <div id="desktopNavTabs" class="flex items-center gap-1.5 p-1 rounded-2xl glass-base">
       <button id="viewOrbBtn" onclick="switchView('orb')" class="px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
         ✦ Aesthetic Core
       </button>
@@ -341,8 +510,8 @@
       </button>
     </div>
 
-    <!-- Right Controls: Wake Word, Always Listening, Boosted Audio, Status -->
-    <div class="flex items-center gap-3">
+    <!-- Right Controls: Wake Word, Always Listening, Boosted Audio, Status — desktop only -->
+    <div id="desktopRightControls" class="flex items-center gap-3">
       <!-- Wake Word Badge -->
       <div id="wakeBadge" class="wake-badge-standby flex items-center gap-2 px-3.5 py-1.5 rounded-full cursor-pointer transition-all" onclick="toggleWakeWordMode()" title='Say "Hey Aura" to activate'>
         <div id="wakeDot" class="w-2 h-2 rounded-full bg-slate-400"></div>
@@ -376,7 +545,72 @@
         </div>
       </div>
     </div>
+
+    <!-- Mobile-only: status dot + hamburger -->
+    <div id="mobileMenuBtn" class="items-center gap-3">
+      <div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full glass-base">
+        <div id="mobileStatusDot" class="w-2 h-2 rounded-full bg-gray-500"></div>
+        <span id="mobileStatusText" class="text-[10px] text-white/60 font-mono uppercase font-bold">connecting</span>
+      </div>
+      <button onclick="toggleMobileMenu()" class="w-10 h-10 rounded-2xl glass-base flex items-center justify-center text-white/70 hover:text-cyan-300 transition-all" aria-label="Menu">
+        <svg id="menuIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
   </header>
+
+  <!-- ── MOBILE SLIDE-DOWN MENU ──────────────────────────────────────────── -->
+  <div id="mobileMenu">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-white/10" style="padding-top: calc(1rem + var(--safe-top));">
+      <span class="grad-text font-bold text-lg">AURA MENU</span>
+      <button onclick="toggleMobileMenu()" class="w-10 h-10 rounded-2xl glass-base flex items-center justify-center text-white/60 hover:text-white">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="flex flex-col gap-3 p-5">
+      <!-- Wake Word -->
+      <div id="mobileWakeBadge" class="wake-badge-standby flex items-center gap-3 px-4 py-3 rounded-2xl cursor-pointer transition-all" onclick="toggleWakeWordMode(); toggleMobileMenu();">
+        <div id="mobileWakeDot" class="w-3 h-3 rounded-full bg-slate-400 flex-shrink-0"></div>
+        <div>
+          <div class="text-xs font-mono font-bold tracking-wider uppercase" id="mobileWakeText">SAY: HEY AURA</div>
+          <div class="text-[10px] text-white/40 mt-0.5">Tap to toggle wake word</div>
+        </div>
+      </div>
+      <!-- Always Listening -->
+      <button id="mobileContinuousBtn" onclick="toggleContinuousMode()" class="btn-action px-4 py-3 rounded-2xl text-sm font-mono text-purple-300 border border-purple-500/40 flex items-center gap-3 bg-purple-500/10">
+        <span id="mobileContinuousDot" class="w-3 h-3 rounded-full bg-slate-400 flex-shrink-0"></span>
+        <div class="text-left">
+          <div id="mobileContinuousText" class="font-bold text-xs uppercase tracking-wider">ALWAYS LISTENING: OFF</div>
+          <div class="text-[10px] text-white/40 mt-0.5 normal-case font-normal">Keep mic open continuously</div>
+        </div>
+      </button>
+      <!-- Sound Boost -->
+      <button onclick="forceUnlockSound(); toggleMobileMenu();" class="btn-action px-4 py-3 rounded-2xl text-sm font-mono text-cyan-300 border border-cyan-500/40 flex items-center gap-3 bg-cyan-500/10">
+        <span class="text-xl">📢</span>
+        <div class="text-left">
+          <div class="font-bold text-xs uppercase tracking-wider">3.5× SOUND BOOST</div>
+          <div class="text-[10px] text-white/40 mt-0.5 normal-case font-normal">Unlock boosted audio output</div>
+        </div>
+      </button>
+      <!-- Profile -->
+      <button onclick="openAuthModal(); toggleMobileMenu();" class="btn-action px-4 py-3 rounded-2xl text-sm font-mono text-white/80 border border-white/15 flex items-center gap-3">
+        <span class="text-xl">👤</span>
+        <div class="text-left">
+          <div class="font-bold text-xs uppercase tracking-wider" id="mobileUserName">USER PROFILE</div>
+          <div class="text-[10px] text-white/40 mt-0.5 normal-case font-normal" id="mobileUserEmail">user@gmail.com</div>
+        </div>
+      </button>
+      <!-- History -->
+      <button onclick="toggleHistoryDrawer(); toggleMobileMenu();" class="btn-action px-4 py-3 rounded-2xl text-sm font-mono text-purple-300 border border-purple-500/30 flex items-center gap-3">
+        <span class="text-xl">📜</span>
+        <div class="text-left">
+          <div class="font-bold text-xs uppercase tracking-wider">CONVERSATION HISTORY</div>
+          <div class="text-[10px] text-white/40 mt-0.5 normal-case font-normal"><span id="mobileHistoryCount">0</span> saved messages</div>
+        </div>
+      </button>
+    </div>
+  </div>
 
   <!-- ── MAIN DASHBOARD WORKSPACE ─────────────────────────────────────────── -->
   <main class="flex-1 relative flex items-center justify-center p-6 min-h-0 z-10">
@@ -585,6 +819,48 @@
     <span id="audioTrackStatus">+350% GAIN BOOSTED</span>
   </div>
 
+  <!-- ── MOBILE BOTTOM NAV ─────────────────────────────────────────────────── -->
+  <nav id="mobileBottomNav">
+    <div class="flex items-stretch w-full">
+      <button class="mobile-nav-btn active" id="mobileNavOrb" onclick="switchView('orb'); setMobileNav('orb')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9" stroke-width="1.8"/>
+          <circle cx="12" cy="12" r="4" stroke-width="1.8"/>
+          <line x1="12" y1="3" x2="12" y2="6" stroke-width="1.8"/>
+          <line x1="12" y1="18" x2="12" y2="21" stroke-width="1.8"/>
+          <line x1="3" y1="12" x2="6" y2="12" stroke-width="1.8"/>
+          <line x1="18" y1="12" x2="21" y2="12" stroke-width="1.8"/>
+        </svg>
+        CORE
+      </button>
+      <button class="mobile-nav-btn" id="mobileNavChat" onclick="switchView('chat'); setMobileNav('chat')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+        </svg>
+        CHAT
+      </button>
+      <button class="mobile-nav-btn" id="mobileNavMic" onclick="toggleMic()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M12 3a4 4 0 014 4v4a4 4 0 01-8 0V7a4 4 0 014-4z"/>
+        </svg>
+        <span id="mobileNavMicLabel">MIC</span>
+      </button>
+      <button class="mobile-nav-btn" id="mobileNavCamera" onclick="toggleCamera()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        CAMERA
+      </button>
+      <button class="mobile-nav-btn" id="mobileNavMenu" onclick="toggleMobileMenu()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6h16M4 12h16M4 18h7"/>
+        </svg>
+        MORE
+      </button>
+    </div>
+  </nav>
+
 <script>
 const API_BASE = (window.location.protocol === 'http:' || window.location.protocol === 'https:')
   ? ''
@@ -719,14 +995,16 @@ function switchView(view) {
   if (view === 'orb') {
     orbView.classList.remove('opacity-0', 'pointer-events-none');
     chatView.classList.add('opacity-0', 'pointer-events-none');
-    viewOrbBtn.className = "px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40";
-    viewChatBtn.className = "px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 text-white/60 hover:text-white";
+    if (viewOrbBtn) viewOrbBtn.className = "px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40";
+    if (viewChatBtn) viewChatBtn.className = "px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 text-white/60 hover:text-white";
   } else {
     chatView.classList.remove('opacity-0', 'pointer-events-none');
     orbView.classList.add('opacity-0', 'pointer-events-none');
-    viewChatBtn.className = "px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40";
-    viewOrbBtn.className = "px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 text-white/60 hover:text-white";
+    if (viewChatBtn) viewChatBtn.className = "px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40";
+    if (viewOrbBtn) viewOrbBtn.className = "px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 text-white/60 hover:text-white";
   }
+  // Sync mobile bottom nav active state
+  setMobileNav(view);
 }
 
 function toggleHistoryDrawer() {
@@ -735,6 +1013,9 @@ function toggleHistoryDrawer() {
 
 function renderHistory() {
   historyCount.textContent = historyLogs.length;
+  // sync mobile count
+  const mobileCount = document.getElementById('mobileHistoryCount');
+  if (mobileCount) mobileCount.textContent = historyLogs.length;
   if (historyLogs.length === 0) {
     historyList.innerHTML = `<p class="text-xs text-white/30 italic text-center py-6">No saved history yet</p>`;
     return;
@@ -769,6 +1050,11 @@ function handleAuthSubmit(e) {
   localStorage.setItem('aura_user_profile', JSON.stringify(profile));
   userNameDisplay.textContent = profile.name;
   userContactDisplay.textContent = profile.contact;
+  // sync mobile menu
+  const mUN = document.getElementById('mobileUserName');
+  const mUE = document.getElementById('mobileUserEmail');
+  if (mUN) mUN.textContent = profile.name.toUpperCase();
+  if (mUE) mUE.textContent = profile.contact;
   closeAuthModal();
   addMsg('', `✓ Profile saved: ${profile.name} (${profile.contact})`, 'system');
 }
@@ -777,6 +1063,10 @@ function initProfile() {
   const profile = JSON.parse(localStorage.getItem('aura_user_profile') || '{"name":"User","contact":"user@gmail.com"}');
   userNameDisplay.textContent = profile.name;
   userContactDisplay.textContent = profile.contact;
+  const mUN = document.getElementById('mobileUserName');
+  const mUE = document.getElementById('mobileUserEmail');
+  if (mUN) mUN.textContent = profile.name.toUpperCase();
+  if (mUE) mUE.textContent = profile.contact;
   renderHistory();
 }
 
@@ -790,6 +1080,11 @@ function setStatus(state) {
   const s = states[state] || states.connecting;
   statusDot.style.background = s.color;
   statusText.textContent = s.text;
+  // sync mobile status
+  const mSD = document.getElementById('mobileStatusDot');
+  const mST = document.getElementById('mobileStatusText');
+  if (mSD) mSD.style.background = s.color;
+  if (mST) mST.textContent = s.text;
 }
 
 let lastMsgText = '';
@@ -1373,6 +1668,19 @@ function parseSystemFastPath(text) {
     sysCmd('open_dir', dirMatch[1].trim());
     return;
   }
+}
+
+// ── Mobile UI Helpers ─────────────────────────────────────────────────────────
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobileMenu');
+  menu.classList.toggle('open');
+}
+
+function setMobileNav(view) {
+  document.querySelectorAll('.mobile-nav-btn').forEach(btn => btn.classList.remove('active'));
+  const targetId = view === 'orb' ? 'mobileNavOrb' : 'mobileNavChat';
+  const btn = document.getElementById(targetId);
+  if (btn) btn.classList.add('active');
 }
 
 // ── Initialize App ──────────────────────────────────────────────────────────
