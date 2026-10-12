@@ -1407,16 +1407,104 @@ async function connectRoom() {
   });
 
   room.on(RoomEvent.DataReceived, (payload, participant, kind, topic) => {
-    if (topic === 'lk.chat' || topic === 'lk.transcription') {
-      const text = new TextDecoder().decode(payload).trim();
-      if (text) {
-        const isUser = participant && (participant.identity === 'user' || participant.identity === room.localParticipant?.identity);
-        if (!isUser) {
-          addMsg('AURA 2.0', text, 'aura');
+    try {
+      const raw = new TextDecoder().decode(payload).trim();
+      if (!raw) return;
+
+      const isUser = participant && (participant.identity === 'user' || participant.identity === room.localParticipant?.identity);
+
+      // 1. Structured JSON Packets (Actions, Captions, Transcriptions)
+      if (raw.startsWith('{') && raw.endsWith('}')) {
+        try {
+          const data = JSON.parse(raw);
+
+          // Real-time macOS System Tool Actions
+          if (data.type === 'action') {
+            if (data.text) {
+              liveSubtitle.textContent = data.text;
+              if (data.status === 'completed') {
+                liveSubtitle.className = 'text-sm text-emerald-300 font-medium';
+                addMsg('', data.text, 'system');
+              } else if (data.status === 'error') {
+                liveSubtitle.className = 'text-sm text-rose-300 font-medium';
+                addMsg('', data.text, 'system');
+              } else {
+                liveSubtitle.className = 'text-sm text-cyan-300 font-medium animate-pulse';
+              }
+            }
+            return;
+          }
+
+          // Real-time Captions (User or Assistant)
+          if (data.type === 'caption' || data.type === 'user_transcription') {
+            const role = data.role || (data.type === 'user_transcription' ? 'user' : 'assistant');
+            const text = (data.text || '').trim();
+            if (!text) return;
+
+            if (role === 'user') {
+              liveSubtitle.textContent = `You: "${text}"`;
+              liveSubtitle.className = 'text-sm text-cyan-200/90 font-normal';
+              if (data.is_final) {
+                const matched = parseSystemFastPath(text);
+                if (!matched && text !== lastMsgText) {
+                  addMsg('You', text, 'you');
+                }
+              }
+            } else {
+              // Real-time Assistant Speech Caption
+              liveSubtitle.textContent = text;
+              liveSubtitle.className = 'text-sm text-cyan-300 font-normal';
+              if (data.is_final && text !== lastMsgText) {
+                addMsg('AURA 2.0', text, 'aura');
+              }
+            }
+            return;
+          }
+        } catch (jsonErr) {
+          // Fall through to plain text
         }
       }
+
+      // 2. Plain Text Fallback
+      if (topic === 'lk.chat' || topic === 'lk.transcription') {
+        if (!isUser) {
+          liveSubtitle.textContent = raw;
+          liveSubtitle.className = 'text-sm text-cyan-300 font-normal';
+          addMsg('AURA 2.0', raw, 'aura');
+        }
+      }
+    } catch (e) {
+      console.warn('[Room Data Error]', e);
     }
   });
+
+  if (RoomEvent.TranscriptionReceived) {
+    room.on(RoomEvent.TranscriptionReceived, (transcriptions, participant) => {
+      try {
+        if (!transcriptions || !transcriptions.length) return;
+        const latest = transcriptions[transcriptions.length - 1];
+        if (!latest || !latest.text) return;
+
+        const isUser = participant && (participant.identity === 'user' || participant.identity === room.localParticipant?.identity);
+        if (isUser) {
+          liveSubtitle.textContent = `You: "${latest.text}"`;
+          liveSubtitle.className = 'text-sm text-cyan-200/90 font-normal';
+          if (latest.final) {
+            parseSystemFastPath(latest.text);
+            if (latest.text !== lastMsgText) {
+              addMsg('You', latest.text, 'you');
+            }
+          }
+        } else {
+          liveSubtitle.textContent = latest.text;
+          liveSubtitle.className = 'text-sm text-cyan-300 font-normal';
+          if (latest.final && latest.text !== lastMsgText) {
+            addMsg('AURA 2.0', latest.text, 'aura');
+          }
+        }
+      } catch (e) {}
+    });
+  }
 
   try {
     await room.connect(cfg.url, cfg.token);
@@ -1766,11 +1854,20 @@ function initWakeWord() {
         activateWakeMode();
       }
 
-      if (isFinal) {
+      // Instant live subtitle feedback while user is speaking
+      if (transcript) {
+        liveSubtitle.textContent = `You: "${transcript}"`;
+        liveSubtitle.className = 'text-sm text-cyan-200/90 font-normal';
+      }
+
+      if (isFinal && transcript) {
         if (wakeActive || continuousMode) {
           wakeTimeRemaining = 30;
         }
-        parseSystemFastPath(transcript);
+        const matched = parseSystemFastPath(transcript);
+        if (!matched && (wakeActive || continuousMode || micEnabled) && transcript !== lastMsgText) {
+          addMsg('You', transcript, 'you');
+        }
       }
     }
   };
@@ -1875,6 +1972,16 @@ function playChime() {
 
 // ── macOS Direct Fast-Path Execution ────────────────────────────────────────
 async function sysCmd(cmd, target) {
+  let promptText = '⚡ Executing macOS command…';
+  if (cmd === 'open_app') promptText = `⚡ Opening ${target}…`;
+  else if (cmd === 'close_app') promptText = `⚡ Closing ${target}…`;
+  else if (cmd === 'set_volume') promptText = `⚡ Setting volume to ${target}%…`;
+  else if (cmd === 'battery') promptText = '⚡ Reading battery status…';
+  else if (cmd === 'open_dir') promptText = `⚡ Opening folder ${target}…`;
+
+  liveSubtitle.textContent = promptText;
+  liveSubtitle.className = 'text-sm text-cyan-300 font-medium animate-pulse';
+
   const url = `${API_BASE}/api/system?cmd=${encodeURIComponent(cmd)}&app=${encodeURIComponent(target)}&dir=${encodeURIComponent(target)}&val=${encodeURIComponent(target)}`;
   try {
     const res = await fetch(url);
@@ -1883,37 +1990,53 @@ async function sysCmd(cmd, target) {
       const result = Array.isArray(data.result)
         ? `Files: ${data.result.slice(0, 10).join(', ')}${data.result.length > 10 ? '...' : ''}`
         : data.result;
+      liveSubtitle.textContent = `✓ ${result}`;
+      liveSubtitle.className = 'text-sm text-emerald-300 font-medium';
       addMsg('', `⌘ ${result}`, 'system');
+      return true;
+    } else {
+      liveSubtitle.textContent = `✗ ${data.error || 'Operation failed'}`;
+      liveSubtitle.className = 'text-sm text-rose-300 font-medium';
+      return false;
     }
-  } catch(e) {}
+  } catch(e) {
+    liveSubtitle.textContent = '✗ System command connection error';
+    liveSubtitle.className = 'text-sm text-rose-300 font-medium';
+    return false;
+  }
 }
 
 function parseSystemFastPath(text) {
-  const clean = text.toLowerCase().trim();
-  if (clean.includes('battery') || clean.includes('power level')) {
+  let clean = text.toLowerCase().trim();
+  clean = clean.replace(/^(?:hey|hi|ok|okay|hello)?\s*aura[,\s]*/i, '')
+               .replace(/^(?:please|could you|can you|would you)\s+/i, '')
+               .trim();
+
+  if (clean.includes('battery') || clean.includes('power level') || clean === 'charge') {
     sysCmd('battery', '');
-    return;
+    return true;
   }
-  const volMatch = clean.match(/(?:set\s+)?volume(?:\s+to)?\s+(\d+)/);
+  const volMatch = clean.match(/(?:set\s+)?volume(?:\s+to)?\s+(\d+)/) || clean.match(/^(\d+)%\s+volume/);
   if (volMatch) {
     sysCmd('set_volume', volMatch[1]);
-    return;
+    return true;
   }
-  const openMatch = clean.match(/(?:open|launch|start)\s+(.+)/);
+  const openMatch = clean.match(/^(?:open|launch|start|run)\s+(.+)/);
   if (openMatch) {
     sysCmd('open_app', openMatch[1].trim());
-    return;
+    return true;
   }
-  const closeMatch = clean.match(/(?:close|quit|kill)\s+(.+)/);
+  const closeMatch = clean.match(/^(?:close|quit|kill|stop)\s+(.+)/);
   if (closeMatch) {
     sysCmd('close_app', closeMatch[1].trim());
-    return;
+    return true;
   }
-  const dirMatch = clean.match(/(?:show|go to|open folder)\s+(.+)/);
+  const dirMatch = clean.match(/^(?:show|go to|open folder|open directory)\s+(.+)/);
   if (dirMatch) {
     sysCmd('open_dir', dirMatch[1].trim());
-    return;
+    return true;
   }
+  return false;
 }
 
 // ── Mobile UI Helpers ─────────────────────────────────────────────────────────
