@@ -469,7 +469,7 @@
     }
   </style>
 </head>
-<body class="bg-grid w-screen h-screen flex flex-col relative overflow-hidden">
+<body class="bg-grid w-screen overflow-hidden relative flex flex-col" style="height:100vh;height:100dvh;">
 
   <!-- Ambient Glowing Blobs -->
   <div class="aesthetic-blob ab-1"></div>
@@ -477,7 +477,7 @@
   <div class="aesthetic-blob ab-3"></div>
 
   <!-- ── TOP HUD NAVIGATION BAR ───────────────────────────────────────────── -->
-  <header class="glass-base w-full px-8 py-3.5 flex items-center justify-between z-20 flex-shrink-0">
+  <header class="glass-base w-full px-4 md:px-8 py-2.5 md:py-3.5 flex items-center justify-between z-20 flex-shrink-0">
     <div class="flex items-center gap-4">
       <div class="w-10 h-10 rounded-2xl glass-base flex items-center justify-center text-xl select-none font-bold shadow-lg"
            style="background:rgba(0, 242, 254, 0.15); border:1px solid rgba(0, 242, 254, 0.35); color:#00f2fe;">
@@ -498,7 +498,7 @@
     </div>
 
     <!-- Center View Switcher Tabs — desktop only -->
-    <div id="desktopNavTabs" class="flex items-center gap-1.5 p-1 rounded-2xl glass-base">
+    <div id="desktopNavTabs" class="hidden md:flex items-center gap-1.5 p-1 rounded-2xl glass-base">
       <button id="viewOrbBtn" onclick="switchView('orb')" class="px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
         ✦ Aesthetic Core
       </button>
@@ -511,7 +511,7 @@
     </div>
 
     <!-- Right Controls: Wake Word, Always Listening, Boosted Audio, Status — desktop only -->
-    <div id="desktopRightControls" class="flex items-center gap-3">
+    <div id="desktopRightControls" class="hidden md:flex items-center gap-3">
       <!-- Wake Word Badge -->
       <div id="wakeBadge" class="wake-badge-standby flex items-center gap-2 px-3.5 py-1.5 rounded-full cursor-pointer transition-all" onclick="toggleWakeWordMode()" title='Say "Hey Aura" to activate'>
         <div id="wakeDot" class="w-2 h-2 rounded-full bg-slate-400"></div>
@@ -547,13 +547,13 @@
     </div>
 
     <!-- Mobile-only: status dot + hamburger -->
-    <div id="mobileMenuBtn" class="items-center gap-3">
+    <div id="mobileMenuBtn" class="flex md:hidden items-center gap-3">
       <div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full glass-base">
         <div id="mobileStatusDot" class="w-2 h-2 rounded-full bg-gray-500"></div>
         <span id="mobileStatusText" class="text-[10px] text-white/60 font-mono uppercase font-bold">connecting</span>
       </div>
-      <button onclick="toggleMobileMenu()" class="w-10 h-10 rounded-2xl glass-base flex items-center justify-center text-white/70 hover:text-cyan-300 transition-all" aria-label="Menu">
-        <svg id="menuIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <button onclick="toggleMobileMenu()" class="w-10 h-10 rounded-2xl glass-base flex items-center justify-center text-white/70 transition-all" aria-label="Menu">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
       </button>
@@ -613,11 +613,11 @@
   </div>
 
   <!-- ── MAIN DASHBOARD WORKSPACE ─────────────────────────────────────────── -->
-  <main class="flex-1 relative flex items-center justify-center p-6 min-h-0 z-10">
+  <main class="flex-1 relative flex items-center justify-center p-3 md:p-6 min-h-0 z-10">
     
     <!-- VIEW 1: 3D AESTHETIC CYBER CORE -->
-    <div id="orbView" class="w-full max-w-4xl h-full flex flex-col items-center justify-center transition-all duration-300">
-      <div class="glass-box w-full max-w-2xl rounded-3xl p-8 flex flex-col items-center justify-center relative overflow-hidden">
+    <div id="orbView" class="w-full h-full flex flex-col items-center justify-center transition-all duration-300">
+      <div class="glass-box w-full max-w-2xl rounded-3xl p-5 md:p-8 flex flex-col items-center justify-center relative overflow-hidden" style="min-height:0;flex:1;max-height:100%;">
         
         <div class="absolute top-4 left-6 flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
@@ -625,7 +625,7 @@
         </div>
 
         <!-- 3D Cyber Core -->
-        <div id="orbContainer" class="cyber-core-container my-6">
+        <div id="orbContainer" class="cyber-core-container my-3 md:my-6">
           <div class="cyber-shockwave"></div>
           <div id="glowRing3" class="cyber-ring-3"></div>
           <div id="glowRing2" class="cyber-ring-2"></div>
@@ -675,7 +675,7 @@
     </div>
 
     <!-- VIEW 2: FULL TRANSCRIPT CHAT VIEW -->
-    <div id="chatView" class="w-full max-w-4xl h-full flex flex-col opacity-0 pointer-events-none transition-all duration-300 absolute inset-6 m-auto">
+    <div id="chatView" class="w-full h-full flex flex-col opacity-0 pointer-events-none transition-all duration-300 absolute inset-3 md:inset-6 m-auto">
       <div class="glass-panel w-full h-full rounded-3xl p-6 flex flex-col overflow-hidden">
         <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
           <h3 class="text-sm font-bold text-cyan-300 font-mono tracking-wider">💬 REALTIME TRANSCRIPT STREAM</h3>
@@ -688,7 +688,7 @@
     </div>
 
     <!-- ── PICTURE-IN-PICTURE CAMERA PREVIEW ──────────────────────────────── -->
-    <div id="cameraPip" class="hidden fixed bottom-28 right-8 z-40 w-72 glass-panel rounded-3xl p-3 shadow-2xl border border-cyan-400/50 transition-all duration-300">
+    <div id="cameraPip" class="hidden fixed z-40 glass-panel rounded-3xl p-3 shadow-2xl border border-cyan-400/50 transition-all duration-300" style="bottom:calc(64px + 16px);right:12px;width:190px;">
       <div class="flex items-center justify-between pb-2 border-b border-white/10 mb-2">
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
@@ -702,7 +702,7 @@
     </div>
 
     <!-- ── SLIDE-OUT HISTORY DRAWER ──────────────────────────────────────── -->
-    <aside id="historyDrawer" class="absolute top-0 left-0 h-full w-96 glass-panel border-r border-white/10 p-6 flex flex-col z-30 transition-all duration-300 transform -translate-x-full">
+    <aside id="historyDrawer" class="absolute top-0 left-0 h-full w-full md:w-96 glass-panel border-r border-white/10 p-5 flex flex-col z-30 transition-all duration-300 transform -translate-x-full">
       <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
         <div class="flex items-center gap-2">
           <span class="text-lg">📜</span>
@@ -724,7 +724,7 @@
   </main>
 
   <!-- ── GOOGLE GEMINI-STYLE FLOATING BOTTOM DOCK ────────────────────────── -->
-  <footer class="w-full px-8 pb-6 pt-2 z-20 flex flex-col items-center justify-center flex-shrink-0">
+  <footer class="w-full px-4 md:px-8 pt-2 z-20 flex flex-col items-center justify-center flex-shrink-0" style="padding-bottom:calc(64px + 8px);">
     <div class="w-full max-w-3xl flex flex-col gap-2">
       
       <!-- Attachment Tray -->
@@ -753,8 +753,9 @@
         </button>
 
         <!-- Text Input -->
-        <input id="msgInput" type="text" placeholder="Ask Aura anything, share camera, attach files, or speak..."
-               class="bg-transparent flex-1 px-3 py-2 text-white text-sm placeholder-white/40 focus:outline-none"
+        <input id="msgInput" type="text" placeholder="Ask Aura anything..."
+               class="bg-transparent flex-1 px-3 py-2 text-white text-base md:text-sm placeholder-white/40 focus:outline-none"
+               style="font-size:16px;"
                onkeydown="if(event.key==='Enter')sendText()" />
 
         <!-- Microphone Button -->
@@ -777,7 +778,7 @@
 
       </div>
 
-      <div class="flex items-center justify-between text-[10px] text-white/30 font-mono px-3">
+      <div class="hidden md:flex items-center justify-between text-[10px] text-white/30 font-mono px-3">
         <span>📎 ATTACH FILES & IMAGES</span>
         <span>📷 LIVE CAMERA VISION</span>
         <span>🎙 SPACE / M TO TOGGLE MIC</span>
@@ -820,7 +821,7 @@
   </div>
 
   <!-- ── MOBILE BOTTOM NAV ─────────────────────────────────────────────────── -->
-  <nav id="mobileBottomNav">
+  <nav id="mobileBottomNav" class="flex md:hidden">
     <div class="flex items-stretch w-full">
       <button class="mobile-nav-btn active" id="mobileNavOrb" onclick="switchView('orb'); setMobileNav('orb')">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
