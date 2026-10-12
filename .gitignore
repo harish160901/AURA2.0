@@ -1,0 +1,37 @@
+# Environment variables & secrets
+.env
+.env.local
+.env.*.local
+*.env
+gemini.txt
+livekit.txt
+
+# Python virtual environment & cache
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Local uploads & temporary artifacts
+uploads/*
+!uploads/.gitkeep
+
+# macOS metadata
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDEs, agents & scratch
+.vscode/
+.idea/
+*.swp
+*~
+.agent/
+.agents/
+.gemini/
+.gsd/
+vr/
+Elite force /
