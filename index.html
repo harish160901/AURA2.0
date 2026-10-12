@@ -865,11 +865,31 @@ async function connectRoom() {
   const { Room, RoomEvent, Track } = LKClient;
 
   let cfg;
-  try {
-    const res = await fetch(`${API_BASE}/api/token`);
-    cfg = await res.json();
-  } catch (e) {
-    addMsg('', '✗ Could not connect to backend server', 'system');
+  const candidates = [
+    `${API_BASE}/api/token`,
+    '/api/token',
+    'http://localhost:3000/api/token',
+    'http://127.0.0.1:3000/api/token',
+  ];
+
+  for (const endpoint of candidates) {
+    if (!endpoint) continue;
+    try {
+      const res = await fetch(endpoint);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.token && data.url) {
+          cfg = data;
+          break;
+        }
+      }
+    } catch (e) {
+      // Continue to next endpoint candidate
+    }
+  }
+
+  if (!cfg) {
+    addMsg('', '✗ Could not connect to backend server. Ensure server.py is running on http://localhost:3000 or your deployment has /api/token active.', 'system');
     setStatus('error');
     return;
   }
